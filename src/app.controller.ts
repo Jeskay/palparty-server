@@ -1,6 +1,8 @@
-import { Body, Controller, Get, HttpException, HttpStatus, Logger, Post, Query, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpException, HttpStatus, Logger, Param, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
+import { User } from '@prisma/client';
 import { AuthService } from './auth/auth.service';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
+import { LocalAuthGuard } from './auth/local-auth.guard';
 import RoleGuard from './auth/role.guard';
 import { Role, Roles } from './auth/roles';
 import { UserService } from './user/user.service';
@@ -13,8 +15,9 @@ export class AppController {
   ) {}
 
   @Post('auth/login')
+  @UseGuards(LocalAuthGuard)
   async login(@Req() req) {
-    return this.authService.login(req.user);
+    return await this.authService.login(req.user);
   }
 
   @Post('auth/register')
@@ -23,18 +26,20 @@ export class AppController {
     const existing = await this.userService.user({email: params.email});
     if (existing) 
       throw new HttpException('User with email address already exists', HttpStatus.BAD_REQUEST);
-    return await this.userService.createUser({
+    const result = await this.userService.createUser({
       name: params.name,
       password: params.password,
       email: params.email,
-      role: 'PERSON'
+      role: Role.PERSON
     });
+    return result;
   }
 
   @Get('profile')
-  @UseGuards(RoleGuard(Role.Person))
+  @UseGuards(RoleGuard(Role.PERSON))
   @UseGuards(JwtAuthGuard)
   async getProfile(@Req() req) {
-    return req.user;
+    const profile = await this.userService.user({email: req.user.email});
+    return profile;
   }
 }
