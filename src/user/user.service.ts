@@ -1,16 +1,28 @@
-import { Injectable } from '@nestjs/common';
-import { PrismaService } from 'src/prisma.service';
+import { Injectable, Logger } from '@nestjs/common';
+import { PrismaService } from '../prisma.service';
 import { Prisma } from '@prisma/client';
+import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 
 @Injectable()
 export class UserService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly cloudinaryService: CloudinaryService
+    ) {}
 
   async user(userWhereUniqueInput: Prisma.UserWhereUniqueInput) {
-    return this.prisma.user.findUnique({ where: userWhereUniqueInput });
+    return this.prisma.user.findUnique({ 
+      where: userWhereUniqueInput,
+      include: {
+        eventsParticipant: true,
+        eventsHosting: true,
+      }
+    });
   }
 
-  async createUser(data: Prisma.UserCreateInput) {
+  async createUser(data: Prisma.UserCreateInput, image: any) {
+    const imageUrl = await this.cloudinaryService.uploadImage(image);
+    Logger.log(imageUrl, "Image uploaded to cloud");
     return this.prisma.user.create({ data: data });
   }
 
