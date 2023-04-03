@@ -22,6 +22,7 @@ export class UserService {
 
   async createUser(data: Prisma.UserCreateInput, image: any) {
     const imageUrl = await this.cloudinaryService.uploadImage(image);
+    data.image = imageUrl;
     Logger.log(imageUrl, "Image uploaded to cloud");
     return this.prisma.user.create({ data: data });
   }

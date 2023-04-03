@@ -3,8 +3,7 @@ import { PrismaService } from '../prisma.service';
 import { CommentService } from './comment.service';
 
 @Module({
-  providers: [CommentService],
-  imports: [PrismaService],
+  providers: [CommentService, PrismaService],
   exports: [CommentService]
 })
 export class CommentModule {}

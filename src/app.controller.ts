@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Get, HttpException, HttpStatus, Logger, Param, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, HttpException, HttpStatus, Logger, Param, Post, Query, Req, Res, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { Prisma, Status, User } from '@prisma/client';
 import { AuthService } from './auth/auth.service';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
@@ -9,6 +9,7 @@ import { CommentService } from './comment/comment.service';
 import { eventDto } from './Dto/event';
 import { EventService } from './event/event.service';
 import { UserService } from './user/user.service';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller()
 export class AppController {
@@ -26,17 +27,17 @@ export class AppController {
   }
 
   @Post('auth/register')
-  async register(@Query() params: any, @Req() req) {
-    console.log(params);
-    const existing = await this.userService.user({email: params.email});
+  @UseInterceptors(FileInterceptor('file'))
+  async register(@Body() body: {email: string, password: string, name: string}, @UploadedFile() file: Express.Multer.File) {
+    const existing = await this.userService.user({email: body.email});
     if (existing) 
       throw new HttpException('User with email address already exists', HttpStatus.BAD_REQUEST);
     const result = await this.userService.createUser({
-      name: params.name,
-      password: params.password,
-      email: params.email,
+      name: body.name,
+      password: body.password,
+      email: body.email,
       role: Role.PERSON
-    }, req.files);
+    }, file.buffer);
     return result;
   }
 
@@ -86,8 +87,10 @@ export class AppController {
       name: event.name,
       description: event.description,
       status: Status.WAITING,
-      host: req.user,
-      date: event.date
+      host: {
+        connect: {id: req.user.id}
+      },
+      date: new Date(event.date)
     });
     return result;
   }
@@ -96,11 +99,13 @@ export class AppController {
   @UseGuards(RoleGuard(Role.PERSON))
   @UseGuards(JwtAuthGuard)
   async joinEvent(@Req() req, @Param('id') eventId) {
-    const user = await this.userService.user({email: req.user.email});
-    if(user.eventsParticipant.find(event => event.eventId == eventId)) {
+    if(req.user == null) {
+      throw new BadRequestException("Can't fetch user information");
+    }
+    if(req.user.eventsParticipant.find(event => event.eventId == eventId)) {
       throw new BadRequestException("User already joined event");
     }
-    return await this.eventService.join(eventId, user.id);
+    return await this.eventService.join(eventId, req.user.id);
   }
 
   @Post('event/leave')
