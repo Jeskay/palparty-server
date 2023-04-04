@@ -103,25 +103,29 @@ export class AppController {
   @Post('event/join')
   @UseGuards(RoleGuard(Role.PERSON))
   @UseGuards(JwtAuthGuard)
-  async joinEvent(@Req() req, @Param('id') eventId) {
+  async joinEvent(@Req() req, @Query('id') eventId: string) {
     if(req.user == null) {
       throw new BadRequestException("Can't fetch user information");
     }
     if(req.user.eventsParticipant.find(event => event.eventId == eventId)) {
       throw new BadRequestException("User already joined event");
     }
-    return await this.eventService.join(eventId, req.user.id);
+    console.log(eventId);
+    await this.eventService.join(parseInt(eventId), req.user.id);
+    return 'ok'
   }
 
   @Post('event/leave')
   @UseGuards(RoleGuard(Role.PERSON))
   @UseGuards(JwtAuthGuard)
-  async leaveEvent(@Req() req, @Param('id') eventId) {
+  async leaveEvent(@Req() req, @Query('id') eventId: string) {
     const user = await this.userService.user({email: req.user.email});
-    if(user.eventsParticipant.find(event => event.eventId == eventId) == undefined) {
+    const id = parseInt(eventId)
+    if(user.eventsParticipant.find(event => event.eventId == id) == undefined) {
       throw new BadRequestException("User is not a participant of the event");
     }
-    return await this.eventService.leave(eventId, user.id);
+    await this.eventService.leave(id, user.id);
+    return 'ok'
   }
 
   @Post('comment')

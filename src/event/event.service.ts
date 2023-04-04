@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { Prisma, Status } from '@prisma/client';
 
@@ -48,6 +48,9 @@ export class EventService {
     }
 
     async join(eventId: number, userId: number) {
+        const event = await this.eventById(eventId);
+        if(event.hostId == userId)
+            throw new BadRequestException("You are already hosting the event")
         return await this.prisma.usersOnEvents.create({
             data: {
                 userId: userId, 
