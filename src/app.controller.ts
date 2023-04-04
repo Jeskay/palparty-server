@@ -131,16 +131,19 @@ export class AppController {
   @Post('comment')
   @UseGuards(RoleGuard(Role.PERSON))
   @UseGuards(JwtAuthGuard)
-  async createComment(@Req() req, @Param('eventId') eventId, @Body() body) {
-    const comment = await this.commentService.create(req.user.id, eventId, body);
-    return comment;
+  async createComment(@Req() req, @Query('eventId') id: string, @Body() comment: {content: string}) {
+    const eventId = parseInt(id)
+    const result = await this.commentService.create(req.user.id, eventId, comment.content);
+    return result;
   }
 
   @Delete('comment')
   @UseGuards(RoleGuard(Role.PERSON))
   @UseGuards(JwtAuthGuard)
-  async deleteComment(@Req() req, @Param('commentId') commendId) {
-    
+  async deleteComment(@Req() req, @Query('id') id: string) {
+    const commentId = parseInt(id)
+    await this.commentService.delete(req.user, commentId);
+    return 'ok'
   }
 
   @Get('events/official')
