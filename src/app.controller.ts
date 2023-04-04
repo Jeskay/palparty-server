@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Get, HttpException, HttpStatus, Logger, Param, Post, Query, Req, Res, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, HttpException, HttpStatus, Logger, Param, Post, Query, Req, Res, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { Prisma, Status, User } from '@prisma/client';
 import { AuthService } from './auth/auth.service';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
@@ -52,15 +52,20 @@ export class AppController {
   @Post('profile')
   @UseGuards(RoleGuard(Role.PERSON))
   @UseGuards(JwtAuthGuard)
-  async updateProfile(@Req() req) {
-
+  @UseInterceptors(FileInterceptor('file'))
+  async updateProfile(@Req() req, @UploadedFile() file: Express.Multer.File) {
+    
   }
 
   @Post('user/image')
   @UseGuards(RoleGuard(Role.PERSON))
   @UseGuards(JwtAuthGuard)
-  async uploadImage(@Req() req) {
-
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadImage(@Req() req, @UploadedFile() file: Express.Multer.File) {
+    if (req.user == null)
+      throw new BadRequestException("Can't fetch user information")
+    const updated = await this.userService.updateUserInfo(req.user, file.buffer)
+    return updated
   }
 
   @Get('event')
@@ -125,6 +130,13 @@ export class AppController {
   async createComment(@Req() req, @Param('eventId') eventId, @Body() body) {
     const comment = await this.commentService.create(req.user.id, eventId, body);
     return comment;
+  }
+
+  @Delete('comment')
+  @UseGuards(RoleGuard(Role.PERSON))
+  @UseGuards(JwtAuthGuard)
+  async deleteComment(@Req() req, @Param('commentId') commendId) {
+    
   }
 
   @Get('events/official')
