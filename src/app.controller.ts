@@ -150,7 +150,7 @@ export class AppController {
   @UseGuards(RoleGuard(Role.PERSON))
   @UseGuards(JwtAuthGuard)
   async getOfficialEvents() {
-    
+    return await this.eventService.eventsOfficial();
   }
 
   

@@ -18,10 +18,10 @@ export class EventService {
         });
     }
 
-    async events() {
+    async events(status: Status = Status.WAITING) {
         return await this.prisma.event.findMany({
             where: {
-                status: Status.WAITING
+                status,
             },
             include: {
                 participants: true,
@@ -29,6 +29,22 @@ export class EventService {
                 comments: true,
             }
         });
+    }
+
+    async eventsOfficial(status: Status = Status.WAITING) {
+        return await this.prisma.event.findMany({
+            where: {
+                status,
+                NOT: {
+                    repostedId: null
+                }
+            },
+            include: {
+                participants: true,
+                reposted: true,
+                comments: true
+            }
+        })
     }
 
     async eventsFetch(page: number, display: number = 5) {
