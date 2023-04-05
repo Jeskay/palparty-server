@@ -31,12 +31,12 @@ export class UserService {
     return this.prisma.user.findMany();
   }
 
-  async updateUserInfo(user: User, data: Prisma.UserUpdateInput): Promise<User>
+  async updateUserInfo(user: User, image: any, data: Prisma.UserUpdateInput ): Promise<User>
   async updateUserInfo(user: User, image: any): Promise<User>
-  async updateUserInfo(user: User, image?: any, data?: Prisma.UserUpdateInput, ): Promise<User> {
+  async updateUserInfo(user: User, image?: any, data?: Prisma.UserUpdateInput ): Promise<User> {
     const newData = data ?? {}
     if(image) {
-      const imageUrl = await this.cloudinaryService.updateImage(image, user.image);
+      const imageUrl = await this.cloudinaryService.updateImage(image, user.image ?? undefined);
       newData.image = imageUrl;
     }
     return await this.prisma.user.update({

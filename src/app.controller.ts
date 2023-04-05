@@ -53,8 +53,11 @@ export class AppController {
   @UseGuards(RoleGuard(Role.PERSON))
   @UseGuards(JwtAuthGuard)
   @UseInterceptors(FileInterceptor('file'))
-  async updateProfile(@Req() req, @UploadedFile() file: Express.Multer.File) {
-    
+  async updateProfile(@Req() req, @UploadedFile() file: Express.Multer.File, @Body() body: {name: string, password: string}) {
+    if (req.user == null)
+      throw new BadRequestException("Cant't fetch user information")
+    const updated = await this.userService.updateUserInfo(req.user, file ? file.buffer : undefined, body);
+    return updated;
   }
 
   @Post('user/image')
