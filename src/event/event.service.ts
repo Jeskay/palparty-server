@@ -4,7 +4,6 @@ import { Event, Prisma, Status } from '@prisma/client';
 import {EventEmitter2, OnEvent} from '@nestjs/event-emitter'
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { CronJob } from 'cron';
-import { DateToCron } from '../utils';
 
 @Injectable()
 export class EventService {
@@ -72,17 +71,18 @@ export class EventService {
 
     async create(eventData: Prisma.EventCreateInput): Promise<Event> {
         const event = await this.prisma.event.create({data: eventData});
-        const job = new CronJob(DateToCron(event.date), () => {
+        const job = new CronJob(event.date, () => {
             this.evenEmitter.emit('event.set.status', event.id, Status.ACTIVE)
         });
-        const nextDay = new Date(event.date.getTime() + 86400000);
+        const dayToMilliseconds = 86400000;
+        const nextDay = new Date(event.date.getTime() + dayToMilliseconds);
         const job2 = new CronJob(nextDay, async () => {
             this.evenEmitter.emit('event.set.status', event.id, Status.PASSED)
         });
-        this.scheduleRegistry.addCronJob('Event started', job)
-        this.scheduleRegistry.addCronJob('Event finished', job2)
+        this.scheduleRegistry.addCronJob(`Event ${event.id} started`, job)
+        this.scheduleRegistry.addCronJob(`Event ${event.id} finished`, job2)
         job.start();
-        job2.start()
+        job2.start();
         return event
     }
 
