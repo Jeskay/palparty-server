@@ -131,6 +131,20 @@ export class AppController {
     return 'ok'
   }
 
+  @Post('event/close')
+  @UseGuards(RoleGuard(Role.PERSON))
+  @UseGuards(JwtAuthGuard)
+  async closeEvent(@Req() req, @Query('id') eventId: string) {
+    if(req.user == null)
+      throw new BadRequestException("Can't fetch user information");
+    const id = parseInt(eventId)
+    const event = await this.eventService.eventById(id)
+    if(event.hostId != req.user.id)
+      throw new BadRequestException("")
+    await this.eventService.updateEventStatus(id, Status.PREPARING);
+    return 'ok'
+  }
+
   @Post('comment')
   @UseGuards(RoleGuard(Role.PERSON))
   @UseGuards(JwtAuthGuard)

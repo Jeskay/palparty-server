@@ -1,10 +1,21 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
-import { Prisma, Status } from '@prisma/client';
+import { Event, Prisma, Status } from '@prisma/client';
+import {EventEmitter2, OnEvent} from '@nestjs/event-emitter'
+import { SchedulerRegistry } from '@nestjs/schedule';
+import { CronJob } from 'cron';
+import { DateToCron } from '../utils';
 
 @Injectable()
 export class EventService {
-    constructor(private prisma: PrismaService) {}
+
+    private readonly logger = new Logger(EventService.name)
+
+    constructor(
+        private prisma: PrismaService, 
+        private evenEmitter: EventEmitter2,
+        private scheduleRegistry: SchedulerRegistry,
+    ) {}
 
     async eventById(id: number) {
         return await this.prisma.event.findUnique({
@@ -59,14 +70,28 @@ export class EventService {
         })
     }
 
-    async create(event: Prisma.EventCreateInput) {
-        return await this.prisma.event.create({data: event});
+    async create(eventData: Prisma.EventCreateInput): Promise<Event> {
+        const event = await this.prisma.event.create({data: eventData});
+        const job = new CronJob(DateToCron(event.date), () => {
+            this.evenEmitter.emit('event.set.status', event.id, Status.ACTIVE)
+        });
+        const nextDay = new Date(event.date.getTime() + 86400000);
+        const job2 = new CronJob(nextDay, async () => {
+            this.evenEmitter.emit('event.set.status', event.id, Status.PASSED)
+        });
+        this.scheduleRegistry.addCronJob('Event started', job)
+        this.scheduleRegistry.addCronJob('Event finished', job2)
+        job.start();
+        job2.start()
+        return event
     }
 
     async join(eventId: number, userId: number) {
         const event = await this.eventById(eventId);
         if(event.hostId == userId)
             throw new BadRequestException("You are already hosting the event")
+        if(event.status != Status.WAITING)
+            throw new BadRequestException("Event is no longer accepting new attendants")
         return await this.prisma.usersOnEvents.create({
             data: {
                 userId: userId, 
@@ -81,6 +106,19 @@ export class EventService {
                 userId_eventId: {userId, eventId}
             }
         })
+    }
+
+    @OnEvent('event.set.status')
+    async updateEventStatus(eventId: number, status: Status) {
+        const event = await this.prisma.event.update({
+            where: {
+                id: eventId
+            }, 
+            data: {
+                status
+            }
+        });
+        this.logger.log(`"${event.name}" event status set to ${status}`)
     }
     
 }
