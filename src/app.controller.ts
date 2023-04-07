@@ -67,22 +67,6 @@ export class AppController {
     return updated
   }
 
-  @Post('comment')
-  @UseGuards(RoleGuard(Role.PERSON))
-  @UseGuards(JwtAuthGuard)
-  async createComment(@Req() req, @Query('eventId') id: string, @Body() comment: {content: string}) {
-    const eventId = parseInt(id)
-    const result = await this.commentService.create(req.user.id, eventId, comment.content);
-    return result;
-  }
-
-  @Delete('comment')
-  @UseGuards(RoleGuard(Role.PERSON))
-  @UseGuards(JwtAuthGuard)
-  async deleteComment(@Req() req, @Query('id') id: string) {
-    const commentId = parseInt(id)
-    await this.commentService.delete(req.user, commentId);
-    return 'ok'
-  }
+  
   
 }
