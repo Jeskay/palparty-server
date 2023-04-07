@@ -73,6 +73,8 @@ export class EventService {
     }
 
     async create(eventData: Prisma.EventCreateInput): Promise<Event> {
+        if(new Date(eventData.date).getTime() + 10000 < new Date(Date.now()).getTime())
+            throw new BadRequestException("Event date in past, event will never start");
         const event = await this.prisma.event.create({data: eventData});
         const job = new CronJob(event.date, () => {
             this.evenEmitter.emit('event.set.status', event.id, Status.ACTIVE)

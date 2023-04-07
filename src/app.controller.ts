@@ -1,13 +1,10 @@
 import { BadRequestException, Body, Controller, Delete, Get, HttpException, HttpStatus, Logger, Param, Post, Query, Req, Res, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
-import { Prisma, Status, User } from '@prisma/client';
 import { AuthService } from './auth/auth.service';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
 import { LocalAuthGuard } from './auth/local-auth.guard';
 import RoleGuard from './auth/role.guard';
-import { Role, Roles } from './auth/roles';
+import { Role } from './auth/roles';
 import { CommentService } from './comment/comment.service';
-import { eventDto } from './Dto/event';
-import { EventService } from './event/event.service';
 import { UserService } from './user/user.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 
@@ -16,7 +13,6 @@ export class AppController {
   constructor(
     private readonly authService: AuthService,
     private readonly userService: UserService,
-    private readonly eventService: EventService,
     private readonly commentService: CommentService,
   ) {}
 
@@ -71,89 +67,6 @@ export class AppController {
     return updated
   }
 
-  @Get('event')
-  @UseGuards(RoleGuard(Role.PERSON))
-  @UseGuards(JwtAuthGuard)
-  async getEvent(@Param('id') id) {
-    const event = await this.eventService.eventById(id);
-    return event;
-  }
-
-  @Get('events')
-  @UseGuards(RoleGuard(Role.PERSON))
-  @UseGuards(JwtAuthGuard)
-  async getEvents(
-    @Req() req, 
-    @Query('page') page: string, 
-    @Query('amount') amount?: string, 
-    @Query('status') status?: string, 
-    @Query('exclude') exclude: boolean = false
-  ) {
-      const pageN = parseInt(page)
-      const pageSize = !amount ? undefined : parseInt(amount)
-      const filter = !status ? undefined : status.split(',').filter(str => Object.values(Status).includes(str as Status))
-      const result = await this.eventService.events(pageN, pageSize, filter as Status[], exclude);
-      return result;
-    }
-
-  @Post('event')
-  @UseGuards(RoleGuard(Role.PERSON))
-  @UseGuards(JwtAuthGuard)
-  async createEvent(@Body() event: eventDto, @Req() req) {
-    const result = await this.eventService.create({
-      name: event.name,
-      description: event.description,
-      status: Status.WAITING,
-      host: {
-        connect: {id: req.user.id}
-      },
-      date: new Date(event.date)
-    });
-    return result;
-  }
-
-  @Post('event/join')
-  @UseGuards(RoleGuard(Role.PERSON))
-  @UseGuards(JwtAuthGuard)
-  async joinEvent(@Req() req, @Query('id') eventId: string) {
-    if(req.user == null) {
-      throw new BadRequestException("Can't fetch user information");
-    }
-    if(req.user.eventsParticipant.find(event => event.eventId == eventId)) {
-      throw new BadRequestException("User already joined event");
-    }
-    console.log(eventId);
-    await this.eventService.join(parseInt(eventId), req.user.id);
-    return 'ok'
-  }
-
-  @Post('event/leave')
-  @UseGuards(RoleGuard(Role.PERSON))
-  @UseGuards(JwtAuthGuard)
-  async leaveEvent(@Req() req, @Query('id') eventId: string) {
-    const user = await this.userService.user({email: req.user.email});
-    const id = parseInt(eventId)
-    if(user.eventsParticipant.find(event => event.eventId == id) == undefined) {
-      throw new BadRequestException("User is not a participant of the event");
-    }
-    await this.eventService.leave(id, user.id);
-    return 'ok'
-  }
-
-  @Post('event/close')
-  @UseGuards(RoleGuard(Role.PERSON))
-  @UseGuards(JwtAuthGuard)
-  async closeEvent(@Req() req, @Query('id') eventId: string) {
-    if(req.user == null)
-      throw new BadRequestException("Can't fetch user information");
-    const id = parseInt(eventId)
-    const event = await this.eventService.eventById(id)
-    if(event.hostId != req.user.id)
-      throw new BadRequestException("")
-    await this.eventService.updateEventStatus(id, Status.PREPARING);
-    return 'ok'
-  }
-
   @Post('comment')
   @UseGuards(RoleGuard(Role.PERSON))
   @UseGuards(JwtAuthGuard)
@@ -171,13 +84,5 @@ export class AppController {
     await this.commentService.delete(req.user, commentId);
     return 'ok'
   }
-
-  @Get('events/official')
-  @UseGuards(RoleGuard(Role.PERSON))
-  @UseGuards(JwtAuthGuard)
-  async getOfficialEvents() {
-    return await this.eventService.eventsOfficial();
-  }
-
   
 }
