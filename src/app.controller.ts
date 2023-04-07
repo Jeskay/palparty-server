@@ -82,10 +82,19 @@ export class AppController {
   @Get('events')
   @UseGuards(RoleGuard(Role.PERSON))
   @UseGuards(JwtAuthGuard)
-  async getEvents(@Req() req) {
-    const result = await this.eventService.events();
-    return result;
-  }
+  async getEvents(
+    @Req() req, 
+    @Query('page') page: string, 
+    @Query('amount') amount?: string, 
+    @Query('status') status?: string, 
+    @Query('exclude') exclude: boolean = false
+  ) {
+      const pageN = parseInt(page)
+      const pageSize = !amount ? undefined : parseInt(amount)
+      const filter = !status ? undefined : status.split(',').filter(str => Object.values(Status).includes(str as Status))
+      const result = await this.eventService.events(pageN, pageSize, filter as Status[], exclude);
+      return result;
+    }
 
   @Post('event')
   @UseGuards(RoleGuard(Role.PERSON))

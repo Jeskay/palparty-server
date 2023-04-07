@@ -28,16 +28,19 @@ export class EventService {
         });
     }
 
-    async events(status: Status = Status.WAITING) {
+    async events(page: number, pageSize: number = 10, status: Status[] = [Status.WAITING], excluding: boolean = false) {
+        const filter = excluding ? {notIn: status} : {in: status};
         return await this.prisma.event.findMany({
             where: {
-                status,
+                status: filter
             },
             include: {
                 participants: true,
                 reposted: true,
                 comments: true,
-            }
+            },
+            take: pageSize,
+            skip: page * pageSize,
         });
     }
 
