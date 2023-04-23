@@ -72,6 +72,15 @@ export class EventService {
         })
     }
 
+    async updateInfo(event: Prisma.EventWhereUniqueInput, data: Prisma.EventUpdateInput) {
+        return await this.prisma.event.update({
+            where: {
+                id: event.id
+            },
+            data
+        })
+    }
+
     async create(eventData: Prisma.EventCreateInput): Promise<Event> {
         if(new Date(eventData.date).getTime() + 10000 < new Date(Date.now()).getTime())
             throw new BadRequestException("Event date in past, event will never start");

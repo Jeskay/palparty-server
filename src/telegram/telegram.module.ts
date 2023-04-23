@@ -1,9 +1,13 @@
 import { Module } from '@nestjs/common';
-import { ConfigurableModuleClass } from './telegram.module-definition';
-import { TelegramService } from './telegram.service';
+import { TelegramUpdate } from './telegram.update.';
+import { AuthModule } from '../auth/auth.module';
+import { AuthScene } from './auth.scene';
+import { UserModule } from '../user/user.module';
+import { EventModule } from '../event/event.module';
 
 @Module({
-    providers: [TelegramService],
-    exports: [TelegramService]
+    providers: [TelegramUpdate, AuthScene],
+    imports: [AuthModule, UserModule, EventModule],
+    exports: [TelegramUpdate]
 })
-export class TelegramModule extends ConfigurableModuleClass {}
+export class TelegramModule {}

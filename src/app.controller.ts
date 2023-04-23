@@ -21,7 +21,7 @@ export class AppController {
 
   @Post('auth/register')
   @UseInterceptors(FileInterceptor('file'))
-  async register(@Body() body: {email: string, password: string, name: string}, @UploadedFile() file: Express.Multer.File) {
+  async register(@Body() body: {email: string, password: string, name?: string}, @UploadedFile() file?: Express.Multer.File) {
     const existing = await this.userService.user({email: body.email});
     if (existing) 
       throw new HttpException('User with email address already exists', HttpStatus.BAD_REQUEST);
@@ -30,7 +30,7 @@ export class AppController {
       password: body.password,
       email: body.email,
       role: Role.PERSON
-    }, file.buffer);
+    }, file ? file.buffer : undefined);
     return result;
   }
 }

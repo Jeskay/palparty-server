@@ -12,6 +12,7 @@ datasource db {
 
 model User {
   id Int @default(autoincrement()) @id
+  telegramId Int? @unique
   name String?
   image String?
   role Role
@@ -33,6 +34,7 @@ model Event {
   comments Comment[]
   createdAt DateTime @default(now())
   date DateTime
+  groupLink String? @unique
   reposted VerifiedEvent? @relation( fields: [repostedId], references: [id])
   repostedId Int?
 }
