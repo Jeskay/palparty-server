@@ -1,10 +1,8 @@
-import {session} from 'telegraf'
-
-export enum AvailableScene {
-    Auth = "auth_scene",
-    Verification = "verification_scene",
+export interface TelegramModuleOptions {
+    token: string;
 }
-
 export const BotName = "PalPartyBot"
 
-export const sessionMiddleware = session()
+export enum ConversationName {
+    Linkage = "linkage",
+}
