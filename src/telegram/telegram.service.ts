@@ -34,14 +34,14 @@ export class TelegramService {
                 return { events: [] }
             },
         }));
-        this.eventMenu.dynamic((ctx) => {
-            return this.createEventMenu(ctx)
+        this.eventMenu.dynamic(async (ctx) => {
+            return await this.createEventMenu(ctx)
         })
         this.bot.use(conversations())
         this.bot.use(createConversation(async (conversation: Conversation<AppContext>, ctx: AppContext) => await this.linkage(conversation, ctx), ConversationName.Linkage))
         this.bot.use(this.eventMenu)
         this.bot.command("start", async (ctx) => await this.start(ctx));
-        this.bot.command("verify", this.verify);
+        this.bot.command("verify", async (ctx) => await this.verify(ctx));
         this.bot.start();
         this.logger.log('Bot started');
     }
@@ -85,8 +85,9 @@ export class TelegramService {
         for(const event of ctx.session.events) {
             menu.text(event.name, async ctx => {
                 const inviteUrl = await ctx.exportChatInviteLink();
-                //await this.registerEventGroup(event, inviteUrl);
+                await this.registerEventGroup(event, inviteUrl);
                 this.logger.log(inviteUrl, 'Invite url linked')
+                await ctx.deleteMessage();
                 await ctx.reply('Ссылка-приглашение в группу успешно прикреплена к событию');
             })
             .row();
