@@ -44,19 +44,17 @@ export class EventService {
         });
     }
 
-    async eventsOfficial(status: Status = Status.WAITING) {
-        return await this.prisma.event.findMany({
+    async eventsOfficial(page: number, pageSize: number = 10, status: Status[] = [Status.WAITING], excluding: boolean = false) {
+        const filter = excluding ? {notIn: status} : {in: status};
+        return await this.prisma.verifiedEvent.findMany({
             where: {
-                status,
-                NOT: {
-                    repostedId: null
-                }
+                status: filter,
             },
             include: {
-                participants: true,
-                reposted: true,
-                comments: true
-            }
+                reposts: true
+            },
+            take: pageSize,
+            skip: page * pageSize,
         })
     }
 

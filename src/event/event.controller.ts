@@ -25,7 +25,6 @@ export class EventController {
     @UseGuards(RoleGuard(Role.PERSON))
     @UseGuards(JwtAuthGuard)
     async getEvents(
-      @Req() req, 
       @Query('page') page: string, 
       @Query('amount') amount?: string, 
       @Query('status') status?: string, 
@@ -93,7 +92,7 @@ export class EventController {
       const id = parseInt(eventId)
       const event = await this.eventService.eventById(id)
       if(event.hostId != req.user.id)
-        throw new BadRequestException("")
+        throw new BadRequestException("User is not the host of the event")
       await this.eventService.updateEventStatus(id, Status.PREPARING);
       return 'ok'
     }
@@ -101,7 +100,16 @@ export class EventController {
     @Get('official')
     @UseGuards(RoleGuard(Role.PERSON))
     @UseGuards(JwtAuthGuard)
-    async getOfficialEvents() {
-      return await this.eventService.eventsOfficial();
+    async getOfficialEvents(
+      @Query('page') page: string, 
+      @Query('amount') amount?: string, 
+      @Query('status') status?: string, 
+      @Query('exclude') exclude: boolean = false
+    ) {
+      const pageN = parseInt(page)
+        const pageSize = !amount ? undefined : parseInt(amount)
+        const filter = !status ? undefined : status.split(',').filter(str => Object.values(Status).includes(str as Status))
+
+      return await this.eventService.eventsOfficial(pageN, pageSize, filter as Status[], exclude);
     }
 }
