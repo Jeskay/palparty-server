@@ -109,6 +109,7 @@ describe('CommentController', () => {
 
     it('should return an ok message', async () => {
       commentService.delete.mockResolvedValueOnce(commentDto)
+      commentService.commentById.mockResolvedValueOnce(commentDto)
 
       await expect(controller.deleteComment(req, '1'))
       .resolves
@@ -117,19 +118,13 @@ describe('CommentController', () => {
 
     it('should return a status code of 417', async () => {
       commentService.delete.mockRejectedValueOnce(new Error("unexpected error"))
+      commentService.commentById.mockResolvedValueOnce(commentDto)
 
       await expect(controller.deleteComment(req, '1'))
       .rejects
       .toThrow(new HttpException("Can't delete comment", HttpStatus.EXPECTATION_FAILED))
     })
 
-    it('should return a status code of 400', async () => {
-      commentService.delete.mockResolvedValueOnce(commentDto)
-
-      await expect(controller.deleteComment(req, '5'))
-      .rejects
-      .toThrow(new HttpException("User is not an author of the comment", HttpStatus.BAD_REQUEST))
-    })
 
     it('should return a status code of 400', async () => {
       const commentDto = {
@@ -143,6 +138,7 @@ describe('CommentController', () => {
       };
 
       commentService.delete.mockResolvedValueOnce(commentDto)
+      commentService.commentById.mockResolvedValueOnce(commentDto)
 
       await expect(controller.deleteComment(req, '1'))
       .rejects

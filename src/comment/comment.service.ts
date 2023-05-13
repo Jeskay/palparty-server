@@ -17,6 +17,14 @@ export class CommentService {
         });
     }
 
+    async commentById(id: number) {
+        return this.prisma.comment.findUnique({ 
+            where: { 
+                id 
+            }
+        });
+    }
+
     async delete(user: User, commentId: number) {
         const comment = await this.prisma.comment.findUnique({
             where: {
