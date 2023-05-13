@@ -72,7 +72,7 @@ describe('AppController', () => {
     })
   });
 
-  describe('login', async () => {
+  describe('login', () => {
     const userDto = {
       email: 'tom@gmail.com',
       password: '54321',
@@ -93,5 +93,6 @@ describe('AppController', () => {
       .rejects
       .toThrow(new HttpException("Can't fetch user information", HttpStatus.BAD_REQUEST))
     })
-  })
+    
+  });
 });
