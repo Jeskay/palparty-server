@@ -126,7 +126,18 @@ describe('UserController', () => {
       eventsParticipant: [],
       eventsHosting: [],
     }
-    const file = null
+    const file = {
+      buffer: null,
+      fieldname: null, 
+      originalname: null, 
+      encoding: null, 
+      mimetype: null,
+      size: null, 
+      stream: null, 
+      destination: null, 
+      filename: null, 
+      path: null, 
+    }
     const req = {user: userDto}
 
     it('return updated instance', async () => {
