@@ -123,10 +123,10 @@ describe('EventController', () => {
 
       await expect(controller.createEvent(eventDto, {user: {id: 1}}))
       .resolves
-      .toContainEqual<Event>(eventDto)
+      .toStrictEqual(eventDto)
     })
 
-    it('should return a status code of 400', async () => {
+    it('should return a status code of 417', async () => {
       eventService.create.mockRejectedValueOnce(new Error("unexpected error"))
 
       await expect(controller.createEvent(eventDto, {user: {id: 2}}))
@@ -172,7 +172,7 @@ describe('EventController', () => {
 
       await expect(controller.joinEvent(req, '1'))
       .rejects
-      .toThrow(new HttpException("could not join event", HttpStatus.EXPECTATION_FAILED))
+      .toThrow(new HttpException("Could not join event", HttpStatus.EXPECTATION_FAILED))
     })
 
     it('should return a status code of 400', async () => {
@@ -201,7 +201,7 @@ describe('EventController', () => {
   })
 
   describe('leaveEvent', () => {
-    const userDto = {
+    const eventDto = {
       id: 2,
       name: 'mountain trip',
       description: 'lets go to the peak of the local mountain',
@@ -211,9 +211,20 @@ describe('EventController', () => {
       repostedId: null,
       date: new Date(),
       groupLink: null,
+      reposted: null,
       comments: [],
-      participants: [],
-      reposted: null
+      participants: []
+    }
+    const userDto = {
+      id: 1,
+      telegramId: 12345,
+      email: 'foo@bar.com',
+      password: 'password',
+      name: 'Ben',
+      role: Role.PERSON,
+      image: 'http://localhost:123/profile/image',
+      eventsParticipant: [eventDto],
+      eventsHosting: [],
     }
     const req = {user: userDto}
     it('should return an ok message', async () => {
@@ -229,7 +240,7 @@ describe('EventController', () => {
 
       await expect(controller.leaveEvent(req, '2'))
       .rejects
-      .toThrow(new HttpException("could not join event", HttpStatus.EXPECTATION_FAILED))
+      .toThrow(new HttpException("Could not leave event", HttpStatus.EXPECTATION_FAILED))
     })
 
     it('should return a status code of 400', async () => {
@@ -334,10 +345,24 @@ describe('EventController', () => {
     })
 
     it('should return a status code of 400', async () => {
+      const eventDto = {
+        id: 2,
+        name: 'mountain trip',
+        description: 'lets go to the peak of the local mountain',
+        status: Status.WAITING,
+        hostId: 1,
+        createdAt: new Date(),
+        repostedId: null,
+        date: new Date(),
+        groupLink: null,
+        reposted: null,
+        comments: [],
+        participants: []
+      }
       eventService.eventById.mockResolvedValueOnce(eventDto)
       eventService.updateEventStatus.mockResolvedValueOnce();
 
-      await expect(controller.closeEvent({}, '1'))
+      await expect(controller.closeEvent(req, '2'))
       .rejects
       .toThrow(new HttpException("User is not the host of the event", HttpStatus.BAD_REQUEST))
     })
