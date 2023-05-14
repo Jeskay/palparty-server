@@ -79,17 +79,18 @@ describe('AppController', () => {
       role: Role.PERSON,
     }
     const token = {accessToken:'accessToken'}
+    const req = {user: userDto}
 
     it('should return user accessToken', async () => {
       authService.login.mockResolvedValueOnce(token);
-      await expect(appController.login(userDto))
+      await expect(appController.login(req))
       .resolves
       .toStrictEqual(token)
     })
 
     it('should return a status code of 400', async () => {
       authService.login.mockRejectedValueOnce(new Error('invalid password'))
-      await expect(appController.login(userDto))
+      await expect(appController.login(req))
       .rejects
       .toThrow(new HttpException("Can't fetch user information", HttpStatus.BAD_REQUEST))
     })

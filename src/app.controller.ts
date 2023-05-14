@@ -16,7 +16,12 @@ export class AppController {
   @Post('auth/login')
   @UseGuards(LocalAuthGuard)
   async login(@Req() req) {
-    return await this.authService.login(req.user);
+    if(!req.user)
+     throw new BadRequestException("Can't fetch user information")
+    const token = await this.authService.login(req.user).catch(err => {
+     throw new BadRequestException("Can't fetch user information")
+    });
+    return token
   }
 
   @Post('auth/register')
