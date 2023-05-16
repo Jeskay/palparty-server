@@ -5,6 +5,7 @@ import { Role } from './auth/roles';
 import { CommentService } from './comment/comment.service';
 import { UserService } from './user/user.service';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { UserCreateDto } from './Dto/user';
 
 @Controller()
 export class AppController {
@@ -26,7 +27,7 @@ export class AppController {
 
   @Post('auth/register')
   @UseInterceptors(FileInterceptor('file'))
-  async register(@Body() body: {email: string, password: string, name?: string}, @UploadedFile() file?: Express.Multer.File) {
+  async register(@Body() body: UserCreateDto, @UploadedFile() file?: Express.Multer.File) {
     const existing = await this.userService.user({email: body.email});
     if (existing) 
       throw new HttpException('User with email address already exists', HttpStatus.BAD_REQUEST);

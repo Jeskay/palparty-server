@@ -1,13 +1,19 @@
 import { createReadStream } from 'streamifier';
-import { UploadApiErrorResponse, UploadApiResponse, v2 as cloudinary } from 'cloudinary';
-import { Injectable, Logger } from '@nestjs/common';
+import { UploadApiErrorResponse, UploadApiOptions, UploadApiResponse, v2 as cloudinary } from 'cloudinary';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 
 @Injectable()
 export class CloudinaryService {
+  private readonly folder: string
+  constructor() {
+    this.folder = `${process.env.MODE}_folder`;
+  }
+
     async uploadImage(buffer: string | Buffer | Uint8Array) {
-        const streamUpload = function(): Promise<UploadApiResponse | UploadApiErrorResponse> {
+        const streamUpload = function(options?: UploadApiOptions): Promise<UploadApiResponse | UploadApiErrorResponse> {
             return new Promise((resolve, reject) => {
                 const stream = cloudinary.uploader.upload_stream(
+                  options,
                   (error, result) => {
                     if (result) {
                       return resolve(result);
@@ -20,7 +26,9 @@ export class CloudinaryService {
               createReadStream(buffer).pipe(stream);
             });
         };
-        const uploadedImage = await streamUpload();
+        const uploadedImage = await streamUpload({
+          folder: this.folder
+        });
         return uploadedImage.secure_url;
     }
 
