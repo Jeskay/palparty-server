@@ -1,10 +1,11 @@
-import { BadRequestException, Body, Controller, Get, HttpException, HttpStatus, Logger, Param, Post, Query, Req, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, HttpException, HttpStatus, Logger, Param, ParseIntPipe, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { EventService } from './event.service';
 import RoleGuard from '../auth/role.guard';
 import { Role } from '../auth/roles';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { eventDto } from '../Dto/event';
 import { Status } from '@prisma/client';
+import { FilterPipe } from './filter.pipe';
 
 @Controller('event')
 export class EventController {
@@ -32,15 +33,12 @@ export class EventController {
     @UseGuards(RoleGuard(Role.PERSON))
     @UseGuards(JwtAuthGuard)
     async getEvents(
-      @Query('page') page: string, 
-      @Query('amount') amount?: string, 
-      @Query('status') status?: string, 
+      @Query('page', new ParseIntPipe()) page: number, 
+      @Query('amount', new ParseIntPipe()) amount?: number, 
+      @Query('status', new FilterPipe()) status?: Status[], 
       @Query('exclude') exclude: boolean = false
     ) {
-        const pageN = parseInt(page)
-        const pageSize = !amount ? undefined : parseInt(amount)
-        const filter = !status ? undefined : status.split(',').filter(str => Object.values(Status).includes(str as Status))
-        const result = await this.eventService.events(pageN, pageSize, filter as Status[], exclude)
+        const result = await this.eventService.events(page, amount, status, exclude)
         .catch(err => {
           this.logger.error(err)
           throw new BadRequestException("invalid query params")
@@ -74,15 +72,14 @@ export class EventController {
     @Post('join')
     @UseGuards(RoleGuard(Role.PERSON))
     @UseGuards(JwtAuthGuard)
-    async joinEvent(@Req() req, @Query('id') eventId: string) {
+    async joinEvent(@Req() req, @Query('id', new ParseIntPipe()) id: number) {
       if(!req.user)
         throw new BadRequestException("Can't fetch user information");
       
-      const id = parseInt(eventId)
       if(!req.user.eventsParticipant || req.user.eventsParticipant.find(event => event.id == id))
         throw new BadRequestException("User already joined event");
       
-      await this.eventService.join(parseInt(eventId), req.user.id)
+      await this.eventService.join(id, req.user.id)
       .catch(err => {
         this.logger.error(err)
         throw new HttpException("Could not join event", HttpStatus.EXPECTATION_FAILED)
@@ -93,11 +90,9 @@ export class EventController {
     @Post('leave')
     @UseGuards(RoleGuard(Role.PERSON))
     @UseGuards(JwtAuthGuard)
-    async leaveEvent(@Req() req, @Query('id') eventId: string) {
+    async leaveEvent(@Req() req, @Query('id', new ParseIntPipe()) id: number) {
       if(!req.user)
         throw new BadRequestException("Can't fetch user information");
-      
-      const id = parseInt(eventId)
       if( !req.user.eventsParticipant || req.user.eventsParticipant.find(event => event.id == id) == undefined)
         throw new BadRequestException("User is not a participant of the event");
       
@@ -112,10 +107,9 @@ export class EventController {
     @Post('close')
     @UseGuards(RoleGuard(Role.PERSON))
     @UseGuards(JwtAuthGuard)
-    async closeEvent(@Req() req, @Query('id') eventId: string) {
+    async closeEvent(@Req() req, @Query('id', new ParseIntPipe()) id: number) {
       if(!req.user)
         throw new BadRequestException("Can't fetch user information");
-      const id = parseInt(eventId)
       const event = await this.eventService.eventById(id)
       .catch(err => {
         this.logger.error(err);
@@ -135,16 +129,12 @@ export class EventController {
     @UseGuards(RoleGuard(Role.PERSON))
     @UseGuards(JwtAuthGuard)
     async getOfficialEvents(
-      @Query('page') page: string, 
-      @Query('amount') amount?: string, 
-      @Query('status') status?: string, 
+      @Query('page', new ParseIntPipe()) page: number, 
+      @Query('amount', new ParseIntPipe()) amount?: number, 
+      @Query('status', new FilterPipe()) status?: Status[], 
       @Query('exclude') exclude: boolean = false
     ) {
-      const pageN = parseInt(page)
-        const pageSize = !amount ? undefined : parseInt(amount)
-        const filter = !status ? undefined : status.split(',').filter(str => Object.values(Status).includes(str as Status))
-
-      const events = await this.eventService.eventsOfficial(pageN, pageSize, filter as Status[], exclude)
+      const events = await this.eventService.eventsOfficial(page, amount, status, exclude)
       .catch(err => {
         this.logger.error(err)
         throw new HttpException("Can't fetch official events", HttpStatus.EXPECTATION_FAILED)

@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Delete, HttpException, HttpStatus, Logger, Post, Query, Req, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, HttpException, HttpStatus, Logger, ParseIntPipe, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { CommentService } from './comment.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import RoleGuard from '../auth/role.guard';
@@ -13,10 +13,9 @@ export class CommentController {
     constructor(private readonly commentService: CommentService) {}
 
     @Post()
-    async createComment(@Req() req, @Query('eventId') id: string, @Body() comment: {content: string}) {
+    async createComment(@Req() req, @Query('eventId', new ParseIntPipe()) eventId: number, @Body() comment: {content: string}) {
       if(!req.user)
         throw new BadRequestException("Can't fetch user information")
-      const eventId = parseInt(id)
       const result = await this.commentService.create(req.user.id, eventId, comment.content)
       .catch(err => {
         this.logger.error(err)
@@ -26,14 +25,13 @@ export class CommentController {
     }
 
     @Delete()
-    async deleteComment(@Req() req, @Query('id') id: string) {
+    async deleteComment(@Req() req, @Query('id', new ParseIntPipe()) id: number) {
       if(!req.user)
         throw new BadRequestException("Can't fetch user information")
-      const commentId = parseInt(id)
-      const comment = await this.commentService.commentById(commentId);
+      const comment = await this.commentService.commentById(id);
       if(comment.authorId != req.user.id)
         throw new BadRequestException("User is not an author of the comment")
-      await this.commentService.delete(req.user, commentId)
+      await this.commentService.delete(req.user, id)
       .catch(err => {
         this.logger.error(err)
         throw new HttpException("Can't delete comment", HttpStatus.EXPECTATION_FAILED)
