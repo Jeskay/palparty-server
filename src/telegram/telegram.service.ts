@@ -42,7 +42,9 @@ export class TelegramService {
         this.bot.use(this.eventMenu)
         this.bot.command("start", async (ctx) => await this.start(ctx));
         this.bot.command("verify", async (ctx) => await this.verify(ctx));
-        this.bot.start();
+        this.bot.start().catch(err => {
+            this.logger.error(err);
+        });
         this.logger.log('Bot started');
     }
 
@@ -117,4 +119,7 @@ export class TelegramService {
         await this.eventService.updateInfo({id: event.id}, {groupLink: link})
     }
 
+    async stopBotInstance() {
+        this.bot.stop();
+    }
 }

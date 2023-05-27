@@ -91,14 +91,14 @@ describe('EventController', () => {
 
     it('should return a list of events', async () => {
       eventService.events.mockResolvedValueOnce(eventList)
-      await expect(controller.getEvents('1', '2'))
+      await expect(controller.getEvents(1, 2))
       .resolves
       .toStrictEqual(eventList)
     })
 
     it('should return a status code of 400', async () => {
       eventService.events.mockRejectedValueOnce(new Error('unexpected error'))
-      await expect(controller.getEvents('1', '3'))
+      await expect(controller.getEvents(1, 2))
       .rejects
       .toThrow(new HttpException("invalid query params", HttpStatus.BAD_REQUEST))
     })
@@ -162,7 +162,7 @@ describe('EventController', () => {
     it('should return an ok message', async () => {
       eventService.join.mockResolvedValueOnce({eventId: 1, userId: 1})
 
-      await expect(controller.joinEvent(req, '1'))
+      await expect(controller.joinEvent(req, 1))
       .resolves
       .toEqual('ok')
     })
@@ -170,7 +170,7 @@ describe('EventController', () => {
     it('should return a status code of 400', async () => {
       eventService.join.mockRejectedValueOnce(new Error("unexpected error"))
 
-      await expect(controller.joinEvent(req, '1'))
+      await expect(controller.joinEvent(req, 1))
       .rejects
       .toThrow(new HttpException("Could not join event", HttpStatus.EXPECTATION_FAILED))
     })
@@ -178,7 +178,7 @@ describe('EventController', () => {
     it('should return a status code of 400', async () => {
       eventService.join.mockResolvedValueOnce({eventId: 1, userId: 1})
 
-      await expect(controller.joinEvent({}, '1'))
+      await expect(controller.joinEvent({}, 1))
       .rejects
       .toThrow(new HttpException("Can't fetch user information", HttpStatus.BAD_REQUEST))
     })
@@ -186,7 +186,7 @@ describe('EventController', () => {
     it('should return a status code of 400', async () => {
       eventService.join.mockResolvedValueOnce({eventId: 1, userId: 1})
 
-      await expect(controller.joinEvent({user: null}, '1'))
+      await expect(controller.joinEvent({user: null}, 1))
       .rejects
       .toThrow(new HttpException("Can't fetch user information", HttpStatus.BAD_REQUEST))
     })
@@ -194,7 +194,7 @@ describe('EventController', () => {
     it('should return a status code of 400', async () => {
       eventService.join.mockResolvedValueOnce({eventId: 1, userId: 1})
 
-      await expect(controller.joinEvent(req, '2'))
+      await expect(controller.joinEvent(req, 2))
       .rejects
       .toThrow(new HttpException("User already joined event", HttpStatus.BAD_REQUEST))
     })
@@ -230,7 +230,7 @@ describe('EventController', () => {
     it('should return an ok message', async () => {
       eventService.leave.mockResolvedValueOnce({eventId: 1, userId: 1})
 
-      await expect(controller.leaveEvent(req, '2'))
+      await expect(controller.leaveEvent(req, 2))
       .resolves
       .toEqual('ok')
     })
@@ -238,7 +238,7 @@ describe('EventController', () => {
     it('should return a status code of 400', async () => {
       eventService.leave.mockRejectedValueOnce(new Error("unexpected error"))
 
-      await expect(controller.leaveEvent(req, '2'))
+      await expect(controller.leaveEvent(req, 2))
       .rejects
       .toThrow(new HttpException("Could not leave event", HttpStatus.EXPECTATION_FAILED))
     })
@@ -246,7 +246,7 @@ describe('EventController', () => {
     it('should return a status code of 400', async () => {
       eventService.leave.mockResolvedValueOnce({eventId: 1, userId: 1})
 
-      await expect(controller.leaveEvent({}, '2'))
+      await expect(controller.leaveEvent({}, 2))
       .rejects
       .toThrow(new HttpException("Can't fetch user information", HttpStatus.BAD_REQUEST))
     })
@@ -254,7 +254,7 @@ describe('EventController', () => {
     it('should return a status code of 400', async () => {
       eventService.leave.mockResolvedValueOnce({eventId: 1, userId: 1})
 
-      await expect(controller.leaveEvent({user: null}, '2'))
+      await expect(controller.leaveEvent({user: null}, 2))
       .rejects
       .toThrow(new HttpException("Can't fetch user information", HttpStatus.BAD_REQUEST))
     })
@@ -262,7 +262,7 @@ describe('EventController', () => {
     it('should return a status code of 400', async () => {
       eventService.leave.mockResolvedValueOnce({eventId: 1, userId: 1})
 
-      await expect(controller.leaveEvent(req, '1'))
+      await expect(controller.leaveEvent(req, 1))
       .rejects
       .toThrow(new HttpException("User is not a participant of the event", HttpStatus.BAD_REQUEST))
     })
@@ -303,7 +303,7 @@ describe('EventController', () => {
       eventService.eventById.mockResolvedValueOnce(eventDto)
       eventService.updateEventStatus.mockResolvedValueOnce();
 
-      await expect(controller.closeEvent(req, '2'))
+      await expect(controller.closeEvent(req, 2))
       .resolves
       .toEqual('ok')
     })
@@ -312,7 +312,7 @@ describe('EventController', () => {
       eventService.eventById.mockRejectedValueOnce(new Error("unexpected error"))
       eventService.updateEventStatus.mockResolvedValueOnce();
 
-      await expect(controller.closeEvent(req, '2'))
+      await expect(controller.closeEvent(req, 2))
       .rejects
       .toThrow(new HttpException("Event not found", HttpStatus.NOT_FOUND))
     })
@@ -321,7 +321,7 @@ describe('EventController', () => {
       eventService.eventById.mockResolvedValueOnce(eventDto)
       eventService.updateEventStatus.mockRejectedValueOnce(new Error("unexpected error"))
 
-      await expect(controller.closeEvent(req, '2'))
+      await expect(controller.closeEvent(req, 2))
       .rejects
       .toThrow(new HttpException("Can't update event status", HttpStatus.EXPECTATION_FAILED))
     })
@@ -330,7 +330,7 @@ describe('EventController', () => {
       eventService.eventById.mockResolvedValueOnce(eventDto)
       eventService.updateEventStatus.mockResolvedValueOnce();
 
-      await expect(controller.closeEvent({}, '2'))
+      await expect(controller.closeEvent({}, 2))
       .rejects
       .toThrow(new HttpException("Can't fetch user information", HttpStatus.BAD_REQUEST))
     })
@@ -339,7 +339,7 @@ describe('EventController', () => {
       eventService.eventById.mockResolvedValueOnce(eventDto)
       eventService.updateEventStatus.mockResolvedValueOnce();
 
-      await expect(controller.closeEvent({user: null}, '2'))
+      await expect(controller.closeEvent({user: null}, 2))
       .rejects
       .toThrow(new HttpException("Can't fetch user information", HttpStatus.BAD_REQUEST))
     })
@@ -362,7 +362,7 @@ describe('EventController', () => {
       eventService.eventById.mockResolvedValueOnce(eventDto)
       eventService.updateEventStatus.mockResolvedValueOnce();
 
-      await expect(controller.closeEvent(req, '2'))
+      await expect(controller.closeEvent(req, 2))
       .rejects
       .toThrow(new HttpException("User is not the host of the event", HttpStatus.BAD_REQUEST))
     })
@@ -393,7 +393,7 @@ describe('EventController', () => {
     it('should return a list of official events', async () => {
       eventService.eventsOfficial.mockResolvedValueOnce(eventList)
 
-      await expect(controller.getOfficialEvents('1', '5'))
+      await expect(controller.getOfficialEvents(1, 5))
       .resolves
       .toStrictEqual(eventList)
     })
@@ -401,7 +401,7 @@ describe('EventController', () => {
     it('should return a status code of 417', async () => {
       eventService.eventsOfficial.mockRejectedValueOnce(new Error("unexpected error"))
 
-      await expect(controller.getOfficialEvents('1', '10'))
+      await expect(controller.getOfficialEvents(1, 10))
       .rejects
       .toThrow(new HttpException("Can't fetch official events", HttpStatus.EXPECTATION_FAILED))
     })

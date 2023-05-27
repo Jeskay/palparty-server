@@ -3,10 +3,12 @@ import { INestApplication, ValidationPipe } from '@nestjs/common';
 import * as request from 'supertest';
 import { AppModule } from './../src/app.module';
 import { PrismaService } from './../src/prisma.service';
+import { TelegramService } from './../src/telegram/telegram.service';
 
 describe('AppController (e2e)', () => {
   let app: INestApplication;
   let prisma: PrismaService;
+  let telegram: TelegramService;
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
@@ -15,6 +17,7 @@ describe('AppController (e2e)', () => {
 
     app = moduleFixture.createNestApplication();
     prisma = app.get(PrismaService);
+    telegram = app.get(TelegramService);
     await app.init();
   });
 
@@ -26,6 +29,7 @@ describe('AppController (e2e)', () => {
     ])
   
     await prisma.$disconnect()
+    await telegram.stopBotInstance()
   });
 
   const user1Dto = {

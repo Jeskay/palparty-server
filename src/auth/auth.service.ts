@@ -10,17 +10,18 @@ export class AuthService {
     private jwtService: JwtService
   ) {}
 
-  async validateUser(email: string, pass: string): Promise<null | Omit< User, 'password' >> {
-    const user = await this.userService.user({ email: email });
+  async validateUser(email: string, pass: string) {
+    const user = await this.userService.user({ email: email }, true);
+    
     if (user && user.password === pass) {
-      delete user.password
-      return user;
+      const {password, ...otherProps} = user;
+      return otherProps;
     }
     return null;
   }
 
-  async fetchUser(email: string): Promise<User | null> {
-    return await this.userService.user({ email: email });
+  async fetchUser(email: string) {
+    return await this.userService.user({ email: email }, true);
   }
 
   async login(user: any) {

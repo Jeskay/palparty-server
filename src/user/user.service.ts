@@ -1,10 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
-import { Prisma, User } from '@prisma/client';
+import { Prisma, User, UsersOnEvents, Event } from '@prisma/client';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
 
 type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
-type SafeUser = PartialBy<User, 'password'>
+export type SafeUser = PartialBy<User, 'password'>
 
 @Injectable()
 export class UserService {
@@ -13,14 +13,22 @@ export class UserService {
     private readonly cloudinaryService: CloudinaryService
   ) {}
 
-  async user(userWhereUniqueInput: Prisma.UserWhereUniqueInput) {
-    return this.prisma.user.findUnique({ 
+  async user(userWhereUniqueInput: Prisma.UserWhereUniqueInput, displayPasswordHash: boolean = false)
+    : Promise<((User | SafeUser) & {eventsParticipant: UsersOnEvents[], eventsHosting: Event[] }) | null> {
+    const user = await this.prisma.user.findUnique({ 
       where: userWhereUniqueInput,
       include: {
         eventsParticipant: true,
         eventsHosting: true,
       }
     });
+
+    if(user === null || displayPasswordHash)
+      return user;
+    else {
+      const {password, ...otherProps} = user;
+      return otherProps;
+    }
   }
 
   async createUser(data: Prisma.UserCreateInput, image?: string | Buffer | Uint8Array) {
@@ -29,35 +37,29 @@ export class UserService {
       data.image = imageUrl;
       Logger.log(imageUrl, "Image uploaded to cloud");
     }
-    return this.prisma.user.create({ data: data });
+    const {password, ...otherProps} = await this.prisma.user.create({ data: data });
+    return otherProps;
   }
 
   async users() {
     return this.prisma.user.findMany();
   }
 
-  async updateUserInfo(user: SafeUser, image: any, data: Prisma.UserUpdateInput ): Promise<User>
-  async updateUserInfo(user: SafeUser, image: any): Promise<User>
-  async updateUserInfo(user: SafeUser, image?: any, data?: Prisma.UserUpdateInput ): Promise<User> {
+  async updateUserInfo(user: SafeUser, image: any, data: Prisma.UserUpdateInput ): Promise<SafeUser>
+  async updateUserInfo(user: SafeUser, image: any): Promise<SafeUser>
+  async updateUserInfo(user: SafeUser, image?: any, data?: Prisma.UserUpdateInput ): Promise<SafeUser> {
     const newData = data ?? {}
     if(image) {
       const imageUrl = await this.cloudinaryService.updateImage(image, user.image ?? undefined);
       newData.image = imageUrl;
     }
-    return await this.prisma.user.update({
+    const {password, ...otherProps} = await this.prisma.user.update({
       where: {
         id: user.id
       }, 
       data: newData
     });
-  }
-
-  async UpdateUser(params: {
-    where: Prisma.UserWhereUniqueInput;
-    data: Prisma.UserUpdateInput;
-  }) {
-    const { where, data } = params;
-    return this.prisma.user.update({ data, where });
+    return otherProps
   }
 
   async deleteUser(where: Prisma.UserWhereUniqueInput) {

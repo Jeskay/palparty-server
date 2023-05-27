@@ -52,7 +52,7 @@ describe('CommentController', () => {
     it('should return an instance of a new comment', async () => {
       commentService.create.mockResolvedValueOnce(commentDto)
 
-      await expect(controller.createComment(req, '2', {content: commentDto.content}))
+      await expect(controller.createComment(req, 2, {content: commentDto.content}))
       .resolves
       .toStrictEqual(commentDto);
     })
@@ -60,7 +60,7 @@ describe('CommentController', () => {
     it('should return a status code of 417', async () => {
       commentService.create.mockRejectedValueOnce(new Error("unexpected error"))
 
-      await expect(controller.createComment(req, '2', {content: commentDto.content}))
+      await expect(controller.createComment(req, 2, {content: commentDto.content}))
       .rejects
       .toThrow(new HttpException("Can't create comment", HttpStatus.EXPECTATION_FAILED))
     })
@@ -68,7 +68,7 @@ describe('CommentController', () => {
     it('should return a status code of 400', async () => {
       commentService.create.mockResolvedValueOnce(commentDto)
 
-      await expect(controller.createComment({}, '2', {content: commentDto.content}))
+      await expect(controller.createComment({}, 2, {content: commentDto.content}))
       .rejects
       .toThrow(new HttpException("Can't fetch user information", HttpStatus.BAD_REQUEST))
     })
@@ -76,7 +76,7 @@ describe('CommentController', () => {
     it('should return a status code of 400', async () => {
       commentService.create.mockResolvedValueOnce(commentDto)
 
-      await expect(controller.createComment({user: null}, '2', {content: commentDto.content}))
+      await expect(controller.createComment({user: null}, 2, {content: commentDto.content}))
       .rejects
       .toThrow(new HttpException("Can't fetch user information", HttpStatus.BAD_REQUEST))
     })
@@ -111,7 +111,7 @@ describe('CommentController', () => {
       commentService.delete.mockResolvedValueOnce(commentDto)
       commentService.commentById.mockResolvedValueOnce(commentDto)
 
-      await expect(controller.deleteComment(req, '1'))
+      await expect(controller.deleteComment(req, 1))
       .resolves
       .toEqual("ok")
     })
@@ -120,7 +120,7 @@ describe('CommentController', () => {
       commentService.delete.mockRejectedValueOnce(new Error("unexpected error"))
       commentService.commentById.mockResolvedValueOnce(commentDto)
 
-      await expect(controller.deleteComment(req, '1'))
+      await expect(controller.deleteComment(req, 1))
       .rejects
       .toThrow(new HttpException("Can't delete comment", HttpStatus.EXPECTATION_FAILED))
     })
@@ -140,7 +140,7 @@ describe('CommentController', () => {
       commentService.delete.mockResolvedValueOnce(commentDto)
       commentService.commentById.mockResolvedValueOnce(commentDto)
 
-      await expect(controller.deleteComment(req, '1'))
+      await expect(controller.deleteComment(req, 1))
       .rejects
       .toThrow(new HttpException("User is not an author of the comment", HttpStatus.BAD_REQUEST))
     })
