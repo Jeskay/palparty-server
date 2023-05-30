@@ -25,9 +25,10 @@ describe('UserController (e2e)', () => {
     telegram = app.get(TelegramService);
     const controller = app.get(AppController);
     await app.init();
+    await telegram.stopBotInstance()
     
     selfUser = await controller.register({
-      email: 'user1@gmail.com',
+      email: 'user11@gmail.com',
       password: 'password1',
     });
 
@@ -37,7 +38,6 @@ describe('UserController (e2e)', () => {
       password: selfUser.password
     });
     token = response2.accessToken;
-
   });
 
   afterAll(async () => {
@@ -48,7 +48,6 @@ describe('UserController (e2e)', () => {
     ])
   
     await prisma.$disconnect()
-    await telegram.stopBotInstance()
   });
 
   describe('getProfile', () => {

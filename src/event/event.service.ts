@@ -104,6 +104,8 @@ export class EventService {
             throw new BadRequestException("You are already hosting the event")
         if(event.status != Status.WAITING)
             throw new BadRequestException("Event is no longer accepting new attendants")
+        if(event.participants.find(p => p.userId === userId))
+            throw new BadRequestException("You have already joined the event")
         return await this.prisma.usersOnEvents.create({
             data: {
                 userId: userId, 

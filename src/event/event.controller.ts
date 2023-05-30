@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Get, HttpException, HttpStatus, Logger, Param, ParseIntPipe, Post, Query, Req, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, HttpException, HttpStatus, Logger, NotFoundException, Param, ParseIntPipe, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { EventService } from './event.service';
 import RoleGuard from '../auth/role.guard';
 import { Role } from '../auth/roles';
@@ -19,13 +19,14 @@ export class EventController {
     @Get()
     @UseGuards(RoleGuard(Role.PERSON))
     @UseGuards(JwtAuthGuard)
-    async eventById(@Query('id') id) {
-        const eventId = parseInt(id)
-        const event = await this.eventService.eventById(eventId)
+    async eventById(@Query('id', new ParseIntPipe()) id: number) {
+        const event = await this.eventService.eventById(id)
         .catch(err => {
           this.logger.error(err)
           throw new HttpException("Event with provided id was not found", HttpStatus.BAD_REQUEST)
-        })
+        });
+        if(event == null)
+          throw new NotFoundException("Event with provided id was not found");
         return event
     }
 
@@ -82,6 +83,8 @@ export class EventController {
       await this.eventService.join(id, req.user.id)
       .catch(err => {
         this.logger.error(err)
+        if(err instanceof HttpException)
+          throw err;
         throw new HttpException("Could not join event", HttpStatus.EXPECTATION_FAILED)
       })
       return 'ok'

@@ -19,6 +19,7 @@ describe('AppController (e2e)', () => {
     prisma = app.get(PrismaService);
     telegram = app.get(TelegramService);
     await app.init();
+    await telegram.stopBotInstance()
   });
 
   afterAll(async () => {
@@ -29,7 +30,6 @@ describe('AppController (e2e)', () => {
     ])
   
     await prisma.$disconnect()
-    await telegram.stopBotInstance()
   });
 
   const user1Dto = {

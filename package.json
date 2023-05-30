@@ -12,7 +12,7 @@
     "start:dev": "dotenv -e .env.test -- nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "dotenv -e .env.development -- node dist/main",
-    "migrate:dev": "dotenv -e .env.test -- npx prisma migrate deploy",
+    "migrate:dev": "dotenv -e .env.test -- npx prisma migrate dev",
     "migrate:prod": "dotenv -e .env.development -- npx prisma migrate deploy",
     "start:migrate:prod": "npm run migrate:prod && npm run start:prod",
     "start:migrate:dev": "npm run migrate:dev && npm run start:dev",
