@@ -4,21 +4,26 @@ import { DeepMocked, createMock } from '@golevelup/ts-jest';
 import { CommentService } from './comment.service';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { Role } from '../auth/roles';
+import { EventService } from '../event/event.service';
+import { Status } from '@prisma/client';
 
 describe('CommentController', () => {
   let controller: CommentController;
   let commentService: DeepMocked<CommentService>;
+  let eventService: DeepMocked<EventService>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [CommentController],
       providers: [
         { provide: CommentService, useValue: createMock<CommentService>() },
+        { provide: EventService, useValue: createMock<EventService>() },
       ]
     }).compile();
 
     controller = module.get<CommentController>(CommentController);
     commentService = module.get(CommentService);
+    eventService = module.get(EventService);
   });
 
   it('should be defined', () => {
@@ -34,6 +39,20 @@ describe('CommentController', () => {
       createdAt: new Date(),
       updatedAt: new Date(),
       reactions: 1
+    };
+    const eventDto = {
+      id: 2,
+      name: 'mountain trip',
+      description: 'lets go to the peak of the local mountain',
+      status: Status.WAITING,
+      hostId: 1,
+      createdAt: new Date(),
+      repostedId: null,
+      date: new Date(),
+      groupLink: null,
+      reposted: null,
+      comments: [],
+      participants: []
     };
     const userDto = {
       id: 1,
@@ -51,6 +70,7 @@ describe('CommentController', () => {
 
     it('should return an instance of a new comment', async () => {
       commentService.create.mockResolvedValueOnce(commentDto)
+      eventService.eventById.mockResolvedValueOnce(eventDto)
 
       await expect(controller.createComment(req, 2, {content: commentDto.content}))
       .resolves
@@ -59,6 +79,7 @@ describe('CommentController', () => {
 
     it('should return a status code of 417', async () => {
       commentService.create.mockRejectedValueOnce(new Error("unexpected error"))
+      eventService.eventById.mockResolvedValueOnce(eventDto)
 
       await expect(controller.createComment(req, 2, {content: commentDto.content}))
       .rejects
@@ -67,6 +88,7 @@ describe('CommentController', () => {
 
     it('should return a status code of 400', async () => {
       commentService.create.mockResolvedValueOnce(commentDto)
+      eventService.eventById.mockResolvedValueOnce(eventDto)
 
       await expect(controller.createComment({}, 2, {content: commentDto.content}))
       .rejects
@@ -75,6 +97,16 @@ describe('CommentController', () => {
 
     it('should return a status code of 400', async () => {
       commentService.create.mockResolvedValueOnce(commentDto)
+      eventService.eventById.mockResolvedValueOnce(null)
+
+      await expect(controller.createComment(req, 2, {content: commentDto.content}))
+      .rejects
+      .toThrow(new HttpException("Event with provided id does not exist", HttpStatus.BAD_REQUEST))
+    })
+
+    it('should return a status code of 400', async () => {
+      commentService.create.mockResolvedValueOnce(commentDto)
+      eventService.eventById.mockResolvedValueOnce(eventDto)
 
       await expect(controller.createComment({user: null}, 2, {content: commentDto.content}))
       .rejects
