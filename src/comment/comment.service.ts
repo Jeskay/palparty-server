@@ -8,11 +8,19 @@ export class CommentService {
     constructor(private readonly prisma: PrismaService) {}
 
     async create(userId: number, eventId: number, content: string) {
-        return this.prisma.comment.create({
+        return await this.prisma.comment.create({
             data: {
-                authorId: userId,
-                eventId: eventId,
-                content: content,
+                author: {
+                    connect: {
+                        id: userId
+                    }
+                },
+                event: {
+                    connect: {
+                        id: eventId
+                    }
+                },
+                content,
             }
         });
     }

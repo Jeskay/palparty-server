@@ -3,6 +3,7 @@ import { CommentService } from './comment.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import RoleGuard from '../auth/role.guard';
 import { Role } from '../auth/roles';
+import { EventService } from '../event/event.service';
 
 @Controller('comment')
 @UseGuards(RoleGuard(Role.PERSON))
@@ -10,13 +11,19 @@ import { Role } from '../auth/roles';
 export class CommentController {
     private logger: Logger = new Logger(CommentController.name);
     
-    constructor(private readonly commentService: CommentService) {}
+    constructor(
+      private readonly commentService: CommentService,
+      private readonly eventService: EventService
+      ) {}
 
     @Post()
     async createComment(@Req() req, @Query('eventId', new ParseIntPipe()) eventId: number, @Body() comment: {content: string}) {
       if(!req.user)
         throw new BadRequestException("Can't fetch user information")
-      const result = await this.commentService.create(req.user.id, eventId, comment.content)
+      const event = await this.eventService.eventById(eventId);
+      if(!event)
+        throw new BadRequestException("Event with provided id does not exist")
+      const result = await this.commentService.create(req.user.id, event.id, comment.content)
       .catch(err => {
         this.logger.error(err)
         throw new HttpException("Can't create comment", HttpStatus.EXPECTATION_FAILED)
