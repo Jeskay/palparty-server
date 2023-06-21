@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { Prisma, User, UsersOnEvents, Event } from '@prisma/client';
 import { CloudinaryService } from '../cloudinary/cloudinary.service';
+import { hash } from 'bcrypt';
 
 type PartialBy<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>
 export type SafeUser = PartialBy<User, 'password'>
@@ -37,6 +38,7 @@ export class UserService {
       data.image = imageUrl;
       Logger.log(imageUrl, "Image uploaded to cloud");
     }
+    data.password = await hash(data.password, 10);
     const {password, ...otherProps} = await this.prisma.user.create({ data: data });
     return otherProps;
   }
@@ -52,6 +54,9 @@ export class UserService {
     if(image) {
       const imageUrl = await this.cloudinaryService.updateImage(image, user.image ?? undefined);
       newData.image = imageUrl;
+    }
+    if(typeof newData.password == 'string') {
+      newData.password = await hash(newData.password, 10);
     }
     const {password, ...otherProps} = await this.prisma.user.update({
       where: {
