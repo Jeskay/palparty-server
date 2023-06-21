@@ -4,6 +4,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import RoleGuard from '../auth/role.guard';
 import { Role } from '../auth/roles';
+import { UserUpdateDto } from '../Dto/user';
 
 @Controller('user')
 @UseGuards(RoleGuard(Role.PERSON))
@@ -23,7 +24,7 @@ export class UserController {
 
     @Post()
     @UseInterceptors(FileInterceptor('file'))
-    async updateProfile(@Req() req, @UploadedFile() file: Express.Multer.File, @Body() body: {name: string, password: string}) {
+    async updateProfile(@Req() req, @UploadedFile() file: Express.Multer.File, @Body() body: UserUpdateDto) {
       if (!req.user)
         throw new BadRequestException("Can't fetch user information")
       const updated = await this.userService.updateUserInfo(req.user, file ? file.buffer : undefined, body)

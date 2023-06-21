@@ -1,5 +1,21 @@
-import { Prisma } from "@prisma/client";
+import { Status } from "@prisma/client";
+import { IsDateString, IsNotEmpty, IsOptional, IsString, MaxLength } from "class-validator";
 
-export interface eventDto extends Prisma.EventCreateWithoutHostInput {
-    
+export class EventCreateDto {
+
+    @IsNotEmpty()
+    @IsString()
+    @MaxLength(30)
+    name: string;
+
+    @IsOptional()
+    @IsString()
+    description?: string;
+
+    @IsNotEmpty()
+    @IsDateString()
+    date: string | Date;
+
+    @IsOptional()
+    status: Status = Status.WAITING;
 }

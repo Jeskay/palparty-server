@@ -6,7 +6,7 @@ import { PrismaService } from "./../src/prisma.service";
 import { TelegramService } from "./../src/telegram/telegram.service";
 import { AppController } from "./../src/app.controller";
 import { SafeUser } from "./../src/user/user.service";
-import { eventDto } from "./../src/Dto/event";
+import { EventCreateDto } from "./../src/Dto/event";
 import { Status } from "@prisma/client";
 
 describe('EventController (e2e)', () => {
@@ -65,7 +65,7 @@ describe('EventController (e2e)', () => {
     });
 
     describe('createEvent', () => { 
-        const eventSample: eventDto = {
+        const eventSample: EventCreateDto = {
             name: 'Birthday party',
             description: 'Tomorrow I will turn 20. Come everyone even if you do not have any gift.',
             status: Status.WAITING,
@@ -100,7 +100,7 @@ describe('EventController (e2e)', () => {
     })
 
     describe('EventById', () => {
-        const eventSample: eventDto = {
+        const eventSample: EventCreateDto = {
             name: 'Anniversary',
             description: 'Me and my spouse will have our first anniversary this week.',
             status: Status.WAITING,
@@ -146,7 +146,7 @@ describe('EventController (e2e)', () => {
     })
 
     describe('joinEvent', () => {
-        const eventSample: eventDto = {
+        const eventSample: EventCreateDto = {
             name: 'Film Terminator Genesis',
             description: 'I want to find someone to go to the cinema tomorrow.',
             status: Status.WAITING,

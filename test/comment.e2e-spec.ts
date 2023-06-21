@@ -5,7 +5,7 @@ import { AppModule } from "./../src/app.module";
 import { TelegramService } from "./../src/telegram/telegram.service";
 import { SafeUser } from "./../src/user/user.service";
 import { AppController } from "./../src/app.controller";
-import { eventDto } from "./../src/Dto/event";
+import { EventCreateDto } from "./../src/Dto/event";
 import { Event, Status } from "@prisma/client";
 import * as request from 'supertest';
 
@@ -72,7 +72,7 @@ describe('CommentController (e2e)', () => {
         let eventSample: Event;
         
         beforeAll(async () => {
-            const eventSampleDto: eventDto = {
+            const eventSampleDto: EventCreateDto = {
                 name: 'Night Club',
                 description: 'Looking for a company to go to the local night club. I feel embarrassed to go on my own.',
                 status: Status.WAITING,
@@ -139,7 +139,7 @@ describe('CommentController (e2e)', () => {
         let eventSample: Event;
 
         beforeAll(async () => {
-            const eventSampleDto: eventDto = {
+            const eventSampleDto: EventCreateDto = {
                 name: 'Mountain bike',
                 description: 'Looking for a company to go mountain biking.',
                 status: Status.WAITING,

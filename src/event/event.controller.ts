@@ -3,7 +3,7 @@ import { EventService } from './event.service';
 import RoleGuard from '../auth/role.guard';
 import { Role } from '../auth/roles';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { eventDto } from '../Dto/event';
+import { EventCreateDto } from '../Dto/event';
 import { Status } from '@prisma/client';
 import { FilterPipe } from './filter.pipe';
 
@@ -50,7 +50,7 @@ export class EventController {
     @Post()
     @UseGuards(RoleGuard(Role.PERSON))
     @UseGuards(JwtAuthGuard)
-    async createEvent(@Body() event: eventDto, @Req() req) {
+    async createEvent(@Body() event: EventCreateDto, @Req() req) {
       if(!req.user)
         throw new BadRequestException("Can't fetch user information");
       

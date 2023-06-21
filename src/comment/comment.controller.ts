@@ -4,6 +4,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import RoleGuard from '../auth/role.guard';
 import { Role } from '../auth/roles';
 import { EventService } from '../event/event.service';
+import { CreateCommentDto } from '../Dto/comment';
 
 @Controller('comment')
 @UseGuards(RoleGuard(Role.PERSON))
@@ -17,7 +18,7 @@ export class CommentController {
       ) {}
 
     @Post()
-    async createComment(@Req() req, @Query('eventId', new ParseIntPipe()) eventId: number, @Body() comment: {content: string}) {
+    async createComment(@Req() req, @Query('eventId', new ParseIntPipe()) eventId: number, @Body() comment: CreateCommentDto) {
       if(!req.user)
         throw new BadRequestException("Can't fetch user information")
       const event = await this.eventService.eventById(eventId);
