@@ -8,6 +8,7 @@ import { AppController } from "./../src/app.controller";
 import { SafeUser } from "./../src/user/user.service";
 import { EventCreateDto } from "./../src/Dto/event";
 import { Status } from "@prisma/client";
+import { EmptyLogger } from "./utils/emptyLogger";
 
 describe('EventController (e2e)', () => {
     let app: INestApplication;
@@ -22,6 +23,7 @@ describe('EventController (e2e)', () => {
         }).compile();
 
         app = moduleFixture.createNestApplication();
+        app.useLogger(new EmptyLogger());
         prisma = app.get(PrismaService);
         telegram = app.get(TelegramService);
         const controller = app.get(AppController);

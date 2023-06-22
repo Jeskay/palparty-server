@@ -4,6 +4,7 @@ import * as request from 'supertest';
 import { AppModule } from './../src/app.module';
 import { PrismaService } from './../src/prisma.service';
 import { TelegramService } from './../src/telegram/telegram.service';
+import { EmptyLogger } from './utils/emptyLogger';
 
 describe('AppController (e2e)', () => {
   let app: INestApplication;
@@ -16,6 +17,7 @@ describe('AppController (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+    app.useLogger(new EmptyLogger());
     prisma = app.get(PrismaService);
     telegram = app.get(TelegramService);
     await app.init();

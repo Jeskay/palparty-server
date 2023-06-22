@@ -5,6 +5,7 @@ import { DeepMocked, createMock } from '@golevelup/ts-jest';
 import { AuthService } from './auth/auth.service';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { Role } from './auth/roles';
+import { EmptyLogger } from '../test/utils/emptyLogger';
 
 describe('AppController', () => {
   let appController: AppController;
@@ -19,6 +20,7 @@ describe('AppController', () => {
         { provide: AuthService, useValue: createMock<AuthService>() },
       ],
     }).compile();
+    app.useLogger(new EmptyLogger());
 
     appController = app.get<AppController>(AppController);
     userService = app.get(UserService);

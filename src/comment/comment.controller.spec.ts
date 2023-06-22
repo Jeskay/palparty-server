@@ -6,6 +6,7 @@ import { HttpException, HttpStatus } from '@nestjs/common';
 import { Role } from '../auth/roles';
 import { EventService } from '../event/event.service';
 import { Status } from '@prisma/client';
+import { EmptyLogger } from '../../test/utils/emptyLogger';
 
 describe('CommentController', () => {
   let controller: CommentController;
@@ -20,6 +21,7 @@ describe('CommentController', () => {
         { provide: EventService, useValue: createMock<EventService>() },
       ]
     }).compile();
+    module.useLogger(new EmptyLogger());
 
     controller = module.get<CommentController>(CommentController);
     commentService = module.get(CommentService);

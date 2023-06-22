@@ -5,6 +5,7 @@ import { EventService } from './event.service';
 import { Event, Status } from '@prisma/client';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { Role } from '../auth/roles';
+import { EmptyLogger } from '../../test/utils/emptyLogger';
 
 describe('EventController', () => {
   let controller: EventController;
@@ -17,6 +18,7 @@ describe('EventController', () => {
         { provide: EventService, useValue: createMock<EventService>()},
       ]
     }).compile();
+    module.useLogger(new EmptyLogger());
 
     controller = module.get<EventController>(EventController);
     eventService = module.get(EventService);

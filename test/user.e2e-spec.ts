@@ -7,6 +7,7 @@ import * as request from 'supertest';
 import { AppController } from "./../src/app.controller";
 import { TelegramService } from "./../src/telegram/telegram.service";
 import { SafeUser } from "./../src/user/user.service";
+import { EmptyLogger } from "./utils/emptyLogger";
 
 describe('UserController (e2e)', () => {
   let app: INestApplication;
@@ -21,6 +22,7 @@ describe('UserController (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
+    app.useLogger(new EmptyLogger());
     prisma = app.get(PrismaService);
     telegram = app.get(TelegramService);
     const controller = app.get(AppController);

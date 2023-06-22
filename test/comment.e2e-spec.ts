@@ -8,6 +8,7 @@ import { AppController } from "./../src/app.controller";
 import { EventCreateDto } from "./../src/Dto/event";
 import { Event, Status } from "@prisma/client";
 import * as request from 'supertest';
+import { EmptyLogger } from "./utils/emptyLogger";
 
 describe('CommentController (e2e)', () => {
     let app: INestApplication;
@@ -23,6 +24,7 @@ describe('CommentController (e2e)', () => {
         }).compile();
 
         app = moduleFixture.createNestApplication();
+        app.useLogger(new EmptyLogger());
         prisma = app.get(PrismaService);
         telegram = app.get(TelegramService);
         const controller = app.get(AppController)

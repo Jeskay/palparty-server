@@ -4,6 +4,7 @@ import { UserService } from './user.service';
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
 import { Role } from '../auth/roles';
 import { BadRequestException, HttpException, HttpStatus } from '@nestjs/common';
+import { EmptyLogger } from '../../test/utils/emptyLogger';
 
 describe('UserController', () => {
   let controller: UserController;
@@ -16,6 +17,7 @@ describe('UserController', () => {
         {provide: UserService, useValue: createMock<UserService>()},
       ]
     }).compile();
+    module.useLogger(new EmptyLogger());
 
     controller = module.get<UserController>(UserController);
     userService = module.get(UserService);
