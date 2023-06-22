@@ -28,11 +28,29 @@ export class EventService {
         });
     }
 
-    async events(page: number, pageSize: number = 10, status: Status[] = [Status.WAITING], excluding: boolean = false) {
-        const filter = excluding ? {notIn: status} : {in: status};
+    async events(page: number, pageSize: number = 10, status: Status[] = [Status.WAITING], excluding: boolean = false, keywords?: string[]) {
+        const statusFilter = excluding ? {notIn: status} : {in: status};
+        const keyNameFilter = keywords.map(key => {
+            return {   
+                name: {
+                    contains: key
+                }
+            }
+        });
+        const keyDescriptionFilter = keywords.map(key => {
+            return {   
+                description: {
+                    contains: key
+                }
+            }
+        });
         return await this.prisma.event.findMany({
             where: {
-                status: filter
+                status: statusFilter,
+                OR: [
+                    { OR: keyNameFilter },
+                    { OR: keyDescriptionFilter}
+                ]
             },
             include: {
                 participants: true,

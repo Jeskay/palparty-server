@@ -6,6 +6,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { EventCreateDto } from '../Dto/event';
 import { Status } from '@prisma/client';
 import { FilterPipe } from './filter.pipe';
+import { KeywordPipe } from './keyword.pipe';
 
 @Controller('event')
 export class EventController {
@@ -37,9 +38,10 @@ export class EventController {
       @Query('page', new ParseIntPipe()) page: number, 
       @Query('amount', new ParseIntPipe()) amount?: number, 
       @Query('status', new FilterPipe()) status?: Status[], 
-      @Query('exclude') exclude: boolean = false
+      @Query('exclude') exclude: boolean = false,
+      @Query('keyword', new KeywordPipe()) keywords?: string[]
     ) {
-        const result = await this.eventService.events(page, amount, status, exclude)
+        const result = await this.eventService.events(page, amount, status, exclude, keywords)
         .catch(err => {
           this.logger.error(err)
           throw new BadRequestException("invalid query params")
