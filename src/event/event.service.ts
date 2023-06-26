@@ -28,38 +28,63 @@ export class EventService {
         });
     }
 
-    async events(page: number, pageSize: number = 10, status: Status[] = [Status.WAITING], excluding: boolean = false, keywords?: string[]) {
-        const statusFilter = excluding ? {notIn: status} : {in: status};
-        const keyNameFilter = keywords.map(key => {
-            return {   
-                name: {
-                    contains: key
+    async events(page: number, pageSize: number = 10, status: Status[] = [Status.WAITING], excluding: boolean = false, keywords: string[] = []) {
+        const statusFilter = excluding == true ? {notIn: status} : {in: status};
+        if(keywords.length) {
+            const keyNameFilter = keywords.map(key => {
+                return {   
+                    name: {
+                        contains: key
+                    }
                 }
-            }
-        });
-        const keyDescriptionFilter = keywords.map(key => {
-            return {   
-                description: {
-                    contains: key
+            });
+            const keyDescriptionFilter = keywords.map(key => {
+                return {   
+                    description: {
+                        contains: key
+                    }
                 }
-            }
-        });
-        return await this.prisma.event.findMany({
-            where: {
-                status: statusFilter,
-                OR: [
-                    { OR: keyNameFilter },
-                    { OR: keyDescriptionFilter}
-                ]
-            },
-            include: {
-                participants: true,
-                reposted: true,
-                comments: true,
-            },
-            take: pageSize,
-            skip: page * pageSize,
-        });
+            });
+
+            return await this.prisma.event.findMany({
+                where: {
+                    status: statusFilter,
+                    OR: [
+                        { OR: keyNameFilter },
+                        { OR: keyDescriptionFilter}
+                    ]
+                },
+                include: {
+                    participants: {
+                        include: {
+                            user: true
+                        }
+                    },
+                    reposted: true,
+                    comments: true,
+                    host: true,
+                },
+                take: pageSize,
+                skip: page * pageSize,
+            });
+        } else
+            return await this.prisma.event.findMany({
+                where: {
+                    status: statusFilter
+                },
+                include: {
+                    participants: {
+                        include: {
+                            user: true
+                        }
+                    },
+                    reposted: true,
+                    comments: true,
+                    host: true,
+                },
+                take: pageSize,
+                skip: page * pageSize,
+            });
     }
 
     async eventsOfficial(page: number, pageSize: number = 10, status: Status[] = [Status.WAITING], excluding: boolean = false) {
@@ -100,7 +125,12 @@ export class EventService {
     async create(eventData: Prisma.EventCreateInput): Promise<Event> {
         if(new Date(eventData.date).getTime() + 10000 < new Date(Date.now()).getTime())
             throw new BadRequestException("Event date in past, event will never start");
-        const event = await this.prisma.event.create({data: eventData});
+        const event = await this.prisma.event.create({
+            data: eventData, 
+            include: {
+                host: true
+            }
+        });
         const job = new CronJob(event.date, () => {
             this.evenEmitter.emit('event.set.status', event.id, Status.ACTIVE)
         });

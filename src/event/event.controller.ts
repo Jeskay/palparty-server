@@ -36,7 +36,7 @@ export class EventController {
     @UseGuards(JwtAuthGuard)
     async getEvents(
       @Query('page', new ParseIntPipe()) page: number, 
-      @Query('amount', new ParseIntPipe()) amount?: number, 
+      @Query('amount', new ParseIntPipe()) amount: number, 
       @Query('status', new FilterPipe()) status?: Status[], 
       @Query('exclude') exclude: boolean = false,
       @Query('keyword', new KeywordPipe()) keywords?: string[]
@@ -98,7 +98,7 @@ export class EventController {
     async leaveEvent(@Req() req, @Query('id', new ParseIntPipe()) id: number) {
       if(!req.user)
         throw new BadRequestException("Can't fetch user information");
-      if( !req.user.eventsParticipant || req.user.eventsParticipant.find(event => event.id == id) == undefined)
+        if( !req.user.eventsParticipant || (req.user.eventsParticipant.find(event => event.eventId == id) == undefined))
         throw new BadRequestException("User is not a participant of the event");
       
       await this.eventService.leave(id, req.user.id)

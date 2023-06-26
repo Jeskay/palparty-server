@@ -67,6 +67,17 @@ describe('EventController', () => {
         description: 'my 1st anniversary',
         status: Status.WAITING,
         hostId: 1,
+        host: {
+          id: 1,
+          telegramId: 12345,
+          email: 'foo@bar.com',
+          password: 'password',
+          name: 'Ben',
+          role: Role.PERSON,
+          image: 'http://localhost:123/profile/image',
+          eventsParticipant: [],
+          eventsHosting: [],
+        },
         createdAt: new Date(),
         repostedId: null,
         date: new Date(),
@@ -81,6 +92,17 @@ describe('EventController', () => {
         description: 'lets go to the peak of the local mountain',
         status: Status.WAITING,
         hostId: 2,
+        host: {
+          id: 2,
+          telegramId: 12345,
+          email: 'foo@bar.com',
+          password: 'password123',
+          name: 'OldName',
+          role: Role.PERSON,
+          image: 'http://localhost:123/profile/image',
+          eventsParticipant: [],
+          eventsHosting: [],
+        },
         createdAt: new Date(),
         repostedId: null,
         date: new Date(),
@@ -203,20 +225,6 @@ describe('EventController', () => {
   })
 
   describe('leaveEvent', () => {
-    const eventDto = {
-      id: 2,
-      name: 'mountain trip',
-      description: 'lets go to the peak of the local mountain',
-      status: Status.WAITING,
-      hostId: 2,
-      createdAt: new Date(),
-      repostedId: null,
-      date: new Date(),
-      groupLink: null,
-      reposted: null,
-      comments: [],
-      participants: []
-    }
     const userDto = {
       id: 1,
       telegramId: 12345,
@@ -225,7 +233,7 @@ describe('EventController', () => {
       name: 'Ben',
       role: Role.PERSON,
       image: 'http://localhost:123/profile/image',
-      eventsParticipant: [eventDto],
+      eventsParticipant: [{eventId: 2, userId: 1}],
       eventsHosting: [],
     }
     const req = {user: userDto}
