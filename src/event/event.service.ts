@@ -61,7 +61,11 @@ export class EventService {
                         }
                     },
                     reposted: true,
-                    comments: true,
+                    comments: {
+                        include: {
+                            author: true,
+                        }
+                    },
                     host: true,
                 },
                 take: pageSize,
@@ -79,7 +83,11 @@ export class EventService {
                         }
                     },
                     reposted: true,
-                    comments: true,
+                    comments: {
+                        include: {
+                            author: true,
+                        }
+                    },
                     host: true,
                 },
                 take: pageSize,

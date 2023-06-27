@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Delete, HttpException, HttpStatus, Logger, ParseIntPipe, Post, Query, Req, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, HttpException, HttpStatus, Logger, NotFoundException, ParseIntPipe, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { CommentService } from './comment.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import RoleGuard from '../auth/role.guard';
@@ -37,6 +37,8 @@ export class CommentController {
       if(!req.user)
         throw new BadRequestException("Can't fetch user information")
       const comment = await this.commentService.commentById(id);
+      if(!comment)
+        throw new NotFoundException("Comment with provided id does not exist")
       if(comment.authorId != req.user.id)
         throw new BadRequestException("User is not an author of the comment")
       await this.commentService.delete(req.user, id)
