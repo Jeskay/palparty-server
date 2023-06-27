@@ -10,7 +10,7 @@ services:
     depends_on:
       - postgres
     env_file:
-      - .env.development
+      - .env.production
 
   postgres:
     image: postgres:13
