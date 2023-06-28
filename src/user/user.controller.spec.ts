@@ -31,6 +31,7 @@ describe('UserController', () => {
     const userDto = {
       id: 1,
       telegramId: 12345,
+      age: 19,
       email: 'foo@bar.com',
       password: 'password',
       name: 'Ben',
@@ -76,6 +77,7 @@ describe('UserController', () => {
       id: 2,
       telegramId: 12345,
       email: 'foo@bar.com',
+      age: 19,
       password: 'password123',
       name: 'OldName',
       role: Role.PERSON,
@@ -122,6 +124,7 @@ describe('UserController', () => {
       telegramId: 12345,
       email: 'foo@bar.com',
       password: 'password123',
+      age: 19,
       name: 'OldName',
       role: Role.PERSON,
       image: 'http://localhost:123/profile/image',

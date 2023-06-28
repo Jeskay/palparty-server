@@ -31,6 +31,7 @@ describe('UserController (e2e)', () => {
     
     selfUser = await controller.register({
       email: 'user11@gmail.com',
+      age: 21,
       password: 'password1',
     });
 

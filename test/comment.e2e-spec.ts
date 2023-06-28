@@ -33,10 +33,12 @@ describe('CommentController (e2e)', () => {
 
         selfUser = await controller.register({
             email: 'eventuser@gmail.com',
+            age: 36,
             password: 'easypass'
         });
         adminUser = await controller.register({
             email: 'eventadmin@gmail.com',
+            age: 36,
             password: 'hardpass'
         });
 

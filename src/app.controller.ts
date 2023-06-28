@@ -29,10 +29,12 @@ export class AppController {
   @UseInterceptors(FileInterceptor('file'))
   async register(@Body() body: UserCreateDto, @UploadedFile() file?: Express.Multer.File) {
     const existing = await this.userService.user({email: body.email});
+    const age = typeof body.age == 'number' ? body.age : parseInt(body.age);
     if (existing) 
       throw new HttpException('User with email address already exists', HttpStatus.BAD_REQUEST);
     const result = await this.userService.createUser({
       name: body.name,
+      age: age,
       password: body.password,
       email: body.email,
       role: Role.PERSON

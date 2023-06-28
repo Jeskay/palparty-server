@@ -36,15 +36,18 @@ describe('AppController (e2e)', () => {
 
   const user1Dto = {
     email: 'user1@gmail.com',
+    age: 25,
     password: 'password123',
     name: 'user1'
   }
   const user2Dto = {
     email: 'user2',
+    age: 22,
     password: 'pass321'
   }
   const personDto = {
-    email: 'person@gmail.com',
+    email: 'person2@gmail.com',
+    age: 23,
     password: '1956'
   }
 
@@ -72,7 +75,7 @@ describe('AppController (e2e)', () => {
     it('should accept uploading profile images', async () => {
       await request(app.getHttpServer())
       .post('/auth/register')
-      .attach('file', 'test/samples/man.jpg')
+      .attach('file', './test/samples/man.jpg')
       .field(personDto)
       .expect(201)
     })

@@ -13,6 +13,7 @@ datasource db {
 model User {
   id Int @default(autoincrement()) @id
   telegramId Int? @unique
+  age Int
   name String?
   image String?
   role Role

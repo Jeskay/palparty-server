@@ -62,6 +62,7 @@ describe('CommentController', () => {
       id: 1,
       telegramId: 12345,
       email: 'foo@bar.com',
+      age: 19,
       password: 'password',
       name: 'Ben',
       role: Role.PERSON,
@@ -132,6 +133,7 @@ describe('CommentController', () => {
     const userDto = {
       id: 1,
       telegramId: 12345,
+      age: 19,
       email: 'foo@bar.com',
       password: 'password',
       name: 'Ben',

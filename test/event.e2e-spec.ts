@@ -32,10 +32,12 @@ describe('EventController (e2e)', () => {
 
         selfUser = await controller.register({
             email: 'eventparticipant@gmail.com',
+            age: 34,
             password: 'averagepass'
         });
         adminUser = await controller.register({
             email: 'eventhost@gmail.com',
+            age: 34,
             password: 'secretpass'
         });
 
@@ -67,11 +69,11 @@ describe('EventController (e2e)', () => {
     });
 
     describe('createEvent', () => { 
-        const eventSample: EventCreateDto = {
+        const eventSample = {
             name: 'Birthday party',
             description: 'Tomorrow I will turn 20. Come everyone even if you do not have any gift.',
-            status: Status.WAITING,
-            date: new Date(Date.now() + 100000000)
+            status: Status.WAITING.toString(),
+            date: (new Date(Date.now() + 100000000)).toISOString()
         };
 
         it('should not be able to create event while unauthorized', async () => {
@@ -95,8 +97,6 @@ describe('EventController (e2e)', () => {
             .auth(adminToken, {type: 'bearer'})
             .send(eventSample)
             .expect(201);
-            if(typeof eventSample.date != 'string')
-                eventSample.date = eventSample.date.toISOString();
             expect(res.body).toMatchObject(eventSample);
         });
 
@@ -106,10 +106,7 @@ describe('EventController (e2e)', () => {
             .auth(adminToken, {type: 'bearer'})
             .attach('file', './test/samples/cat.jpg')
             .attach('file', './test/samples/man.jpg')
-            .field('name', eventSample.name)
-            .field('description', eventSample.description)
-            .field('status', eventSample.status)
-            .field('date', eventSample.date.toString())
+            .field(eventSample)
             .expect(201);
 
             expect(res.body.hasOwnProperty('images')).toBeTruthy()

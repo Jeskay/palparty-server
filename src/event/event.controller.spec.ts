@@ -74,6 +74,7 @@ describe('EventController', () => {
         host: {
           id: 1,
           telegramId: 12345,
+          age: 19,
           email: 'foo@bar.com',
           password: 'password',
           name: 'Ben',
@@ -101,6 +102,7 @@ describe('EventController', () => {
         host: {
           id: 2,
           telegramId: 12345,
+          age: 19,
           email: 'foo@bar.com',
           password: 'password123',
           name: 'OldName',
@@ -179,6 +181,7 @@ describe('EventController', () => {
       eventsParticipant: [{
         id: 2,
         name: 'mountain trip',
+        age: 19,
         description: 'lets go to the peak of the local mountain',
         status: Status.WAITING,
         hostId: 2,
@@ -235,6 +238,7 @@ describe('EventController', () => {
   describe('leaveEvent', () => {
     const userDto = {
       id: 1,
+      age: 19,
       telegramId: 12345,
       email: 'foo@bar.com',
       password: 'password',
@@ -290,6 +294,7 @@ describe('EventController', () => {
     const userDto = {
       id: 2,
       name: 'mountain trip',
+      age: 19,
       description: 'lets go to the peak of the local mountain',
       status: Status.WAITING,
       hostId: 2,
@@ -304,6 +309,7 @@ describe('EventController', () => {
     const eventDto = {
       id: 2,
       name: 'mountain trip',
+      age: 19,
       description: 'lets go to the peak of the local mountain',
       shortDescription: null,
       images: null,

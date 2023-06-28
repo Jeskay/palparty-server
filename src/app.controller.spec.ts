@@ -36,6 +36,7 @@ describe('AppController', () => {
       userService.user.mockResolvedValueOnce({
         id: 1,
         telegramId: 12345,
+        age: 19,
         email: 'foo@bar.com',
         password: 'password',
         name: 'Ben',
@@ -44,7 +45,7 @@ describe('AppController', () => {
         eventsParticipant: [],
         eventsHosting: [],
       });
-      await expect(appController.register({email: 'foo@bar.com', password: 'password'}))
+      await expect(appController.register({email: 'foo@bar.com', age: 19, password: 'password'}))
       .rejects
       .toThrow(new HttpException('User with email address already exists', HttpStatus.BAD_REQUEST));
     })
@@ -54,16 +55,18 @@ describe('AppController', () => {
       userService.createUser.mockResolvedValueOnce({
         id: 2,
         telegramId: 3,
+        age: 20,
         email: 'tom@gmail.com',
         name: 'Tom',
         role: Role.PERSON,
         image: 'http://localhost:123/profile/image',
       });
-      await expect(appController.register({email: 'tom@gmail.com', password: '54321'}))
+      await expect(appController.register({email: 'tom@gmail.com', age: 20, password: '54321'}))
       .resolves
       .toStrictEqual({
         id: 2,
         telegramId: 3,
+        age: 20,
         email: 'tom@gmail.com',
         name: 'Tom',
         role: Role.PERSON,
