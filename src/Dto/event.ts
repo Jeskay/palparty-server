@@ -10,7 +10,13 @@ export class EventCreateDto {
 
     @IsOptional()
     @IsString()
+    @MaxLength(85)
     description?: string;
+
+    @IsOptional()
+    @IsString()
+    @MaxLength(35)
+    shortDescription?: string;
 
     @IsNotEmpty()
     @IsDateString()

@@ -99,6 +99,22 @@ describe('EventController (e2e)', () => {
                 eventSample.date = eventSample.date.toISOString();
             expect(res.body).toMatchObject(eventSample);
         });
+
+        it('should return event with two images', async () => {
+            const res = await request(app.getHttpServer())
+            .post('/event')
+            .auth(adminToken, {type: 'bearer'})
+            .attach('file', './test/samples/cat.jpg')
+            .attach('file', './test/samples/man.jpg')
+            .field('name', eventSample.name)
+            .field('description', eventSample.description)
+            .field('status', eventSample.status)
+            .field('date', eventSample.date.toString())
+            .expect(201);
+
+            expect(res.body.hasOwnProperty('images')).toBeTruthy()
+            expect(typeof res.body.images).toBe('string')
+        })
     })
 
     describe('EventById', () => {

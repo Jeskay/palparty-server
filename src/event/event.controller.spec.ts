@@ -33,6 +33,8 @@ describe('EventController', () => {
       id: 1,
       name: ' birthday party',
       description: 'my 1st anniversary',
+      shortDescription: null,
+      images: null,
       status: Status.WAITING,
       hostId: 1,
       createdAt: new Date(),
@@ -65,6 +67,8 @@ describe('EventController', () => {
         id: 1,
         name: ' birthday party',
         description: 'my 1st anniversary',
+        shortDescription: null,
+        images: null,
         status: Status.WAITING,
         hostId: 1,
         host: {
@@ -90,6 +94,8 @@ describe('EventController', () => {
         id: 2,
         name: 'mountain trip',
         description: 'lets go to the peak of the local mountain',
+        shortDescription: null,
+        images: null,
         status: Status.WAITING,
         hostId: 2,
         host: {
@@ -133,6 +139,8 @@ describe('EventController', () => {
       id: 2,
       name: 'mountain trip',
       description: 'lets go to the peak of the local mountain',
+      shortDescription: null,
+      images: null,
       status: Status.WAITING,
       hostId: 2,
       createdAt: new Date(),
@@ -145,7 +153,7 @@ describe('EventController', () => {
     it('should return an updated event instance', async () => {
       eventService.create.mockResolvedValueOnce(eventDto)
 
-      await expect(controller.createEvent(eventDto, {user: {id: 1}}))
+      await expect(controller.createEvent(eventDto, [], {user: {id: 1}}))
       .resolves
       .toStrictEqual(eventDto)
     })
@@ -153,7 +161,7 @@ describe('EventController', () => {
     it('should return a status code of 417', async () => {
       eventService.create.mockRejectedValueOnce(new Error("unexpected error"))
 
-      await expect(controller.createEvent(eventDto, {user: {id: 2}}))
+      await expect(controller.createEvent(eventDto, [], {user: {id: 2}}))
       .rejects
       .toThrow(new HttpException("Can't create new event", HttpStatus.EXPECTATION_FAILED))
     })
@@ -297,6 +305,8 @@ describe('EventController', () => {
       id: 2,
       name: 'mountain trip',
       description: 'lets go to the peak of the local mountain',
+      shortDescription: null,
+      images: null,
       status: Status.WAITING,
       hostId: 2,
       createdAt: new Date(),
@@ -359,6 +369,8 @@ describe('EventController', () => {
         id: 2,
         name: 'mountain trip',
         description: 'lets go to the peak of the local mountain',
+        shortDescription: null,
+        images: null,
         status: Status.WAITING,
         hostId: 1,
         createdAt: new Date(),

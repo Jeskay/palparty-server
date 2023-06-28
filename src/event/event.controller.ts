@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Get, HttpException, HttpStatus, Logger, NotFoundException, Param, ParseIntPipe, Post, Query, Req, UseGuards } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, HttpException, HttpStatus, Logger, NotFoundException, Param, ParseIntPipe, Post, Query, Req, UploadedFiles, UseGuards, UseInterceptors } from '@nestjs/common';
 import { EventService } from './event.service';
 import RoleGuard from '../auth/role.guard';
 import { Role } from '../auth/roles';
@@ -7,6 +7,7 @@ import { EventCreateDto } from '../Dto/event';
 import { Status } from '@prisma/client';
 import { FilterPipe } from './filter.pipe';
 import { KeywordPipe } from './keyword.pipe';
+import { AnyFilesInterceptor } from '@nestjs/platform-express';
 
 @Controller('event')
 export class EventController {
@@ -52,10 +53,10 @@ export class EventController {
     @Post()
     @UseGuards(RoleGuard(Role.PERSON))
     @UseGuards(JwtAuthGuard)
-    async createEvent(@Body() event: EventCreateDto, @Req() req) {
+    @UseInterceptors(AnyFilesInterceptor({limits: {files: 3}}))
+    async createEvent(@Body() event: EventCreateDto, @UploadedFiles() files: Express.Multer.File[] = [], @Req() req) {
       if(!req.user)
         throw new BadRequestException("Can't fetch user information");
-      
       const result = await this.eventService.create({
         name: event.name,
         description: event.description,
@@ -64,7 +65,7 @@ export class EventController {
           connect: {id: req.user.id}
         },
         date: new Date(event.date)
-      })
+      }, files.filter(file => file.buffer != undefined))
       .catch(err => {
         this.logger.error(err)
         throw new HttpException("Can't create new event", HttpStatus.EXPECTATION_FAILED)

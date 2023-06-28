@@ -46,6 +46,8 @@ describe('CommentController', () => {
       id: 2,
       name: 'mountain trip',
       description: 'lets go to the peak of the local mountain',
+      shortDescription: null,
+      images: null,
       status: Status.WAITING,
       hostId: 1,
       createdAt: new Date(),

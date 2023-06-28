@@ -4,6 +4,7 @@ import { Event, Prisma, Status } from '@prisma/client';
 import {EventEmitter2, OnEvent} from '@nestjs/event-emitter'
 import { SchedulerRegistry } from '@nestjs/schedule';
 import { CronJob } from 'cron';
+import { CloudinaryService } from '../cloudinary/cloudinary.service';
 
 @Injectable()
 export class EventService {
@@ -12,6 +13,7 @@ export class EventService {
 
     constructor(
         private prisma: PrismaService, 
+        private cloudinaryService: CloudinaryService,
         private evenEmitter: EventEmitter2,
         private scheduleRegistry: SchedulerRegistry,
     ) {}
@@ -130,9 +132,15 @@ export class EventService {
         })
     }
 
-    async create(eventData: Prisma.EventCreateInput): Promise<Event> {
+    async create(eventData: Prisma.EventCreateInput, files?: Express.Multer.File[]): Promise<Event> {
         if(new Date(eventData.date).getTime() + 10000 < new Date(Date.now()).getTime())
             throw new BadRequestException("Event date in past, event will never start");
+        if(files && files.length > 0) {
+            const promises = files.filter(file => file.buffer != undefined).map(file => this.cloudinaryService.uploadImage(file.buffer));
+            const imageLinks: string[] = await Promise.all(promises);
+            this.logger.log(imageLinks, "Images uploaded to cloud");
+            eventData.images = imageLinks.toString();
+        }
         const event = await this.prisma.event.create({
             data: eventData, 
             include: {
