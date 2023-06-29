@@ -10,6 +10,7 @@ export class UserCreateDto {
     password: string;
 
     @IsNotEmpty()
+    @Transform(({value}) => parseInt(value))
     @IsInt()
     @Min(18)
     @Max(100)
