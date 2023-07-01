@@ -24,8 +24,32 @@ export class EventService {
                 id
             }, 
             include: {
-                comments: true,
-                participants: true,
+                comments: {
+                    include: {
+                        author: {
+                            select: {
+                                name: true,
+                                id: true,
+                                age: true,
+                                image: true,
+                                role: true
+                            }
+                        }
+                    }
+                },
+                participants: {
+                    include: {
+                        user: {
+                            select: {
+                                name: true,
+                                id: true,
+                                age: true,
+                                image: true,
+                                role: true
+                            }
+                        }
+                    }
+                },
             }
         });
     }
@@ -59,16 +83,40 @@ export class EventService {
                 include: {
                     participants: {
                         include: {
-                            user: true
+                            user: {
+                                select: {
+                                    name: true,
+                                    id: true,
+                                    age: true,
+                                    image: true,
+                                    role: true
+                                }
+                            }
                         }
                     },
                     reposted: true,
                     comments: {
                         include: {
-                            author: true,
+                            author: {
+                                select: {
+                                    name: true,
+                                    id: true,
+                                    age: true,
+                                    image: true,
+                                    role: true
+                                }
+                            },
                         }
                     },
-                    host: true,
+                    host: {
+                        select: {
+                            name: true,
+                            id: true,
+                            age: true,
+                            image: true,
+                            role: true
+                        }
+                    },
                 },
                 take: pageSize,
                 skip: page * pageSize,
@@ -81,16 +129,40 @@ export class EventService {
                 include: {
                     participants: {
                         include: {
-                            user: true
+                            user: {
+                                select: {
+                                    name: true,
+                                    id: true,
+                                    age: true,
+                                    image: true,
+                                    role: true
+                                }
+                            }
                         }
                     },
                     reposted: true,
                     comments: {
                         include: {
-                            author: true,
+                            author: {
+                                select: {
+                                    name: true,
+                                    id: true,
+                                    age: true,
+                                    image: true,
+                                    role: true
+                                }
+                            },
                         }
                     },
-                    host: true,
+                    host: {
+                        select: {
+                            name: true,
+                            id: true,
+                            age: true,
+                            image: true,
+                            role: true
+                        }
+                    },
                 },
                 take: pageSize,
                 skip: page * pageSize,
