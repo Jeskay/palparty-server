@@ -70,7 +70,7 @@ export class TelegramService {
         }
         const events = admin.eventsHosting.filter(event => !event.groupLink)
         if(events.length == 0) {
-            await ctx.reply('Вы не являетесь администратором событий, для которых требуется создание чата')
+            await ctx.reply('Вы не являетесь администратором событий, для которых возможно создание чата')
             return
         }
         const self = await ctx.getChatMember(this.bot.botInfo.id)
@@ -98,7 +98,7 @@ export class TelegramService {
     }
 
     async linkage(conversation: Conversation<AppContext>, ctx: AppContext) {
-        await ctx.reply('Войдите в учетную запись PalParty')
+        await ctx.reply('Для того, чтобы войти в учетную запись PartyPals введите свой адрес электронной почты')
         const email = (await conversation.wait()).message.text;
         if(!email) return;
         conversation.log("email received: " + email)
@@ -108,7 +108,7 @@ export class TelegramService {
         conversation.log("password received: " + password)
         const user = await conversation.external(() => this.authService.validateUser(email, password))
         if(!user) {
-            await ctx.reply('Неверное имя аккаунта или пароль')
+            await ctx.reply('Неверное имя пользователя или пароль')
         } else {
             await conversation.external(() => this.userService.updateUserInfo(user, undefined, {telegramId: ctx.message.from.id}))
             await ctx.reply('Учетная запись телеграмм сопряжена c аккаунтом PalParty')
